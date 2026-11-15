@@ -5,8 +5,8 @@ using UnityEngine.UI;
 namespace CityWalk
 {
     /// <summary>
-    /// The in-game HUD in the target style: title card, lap counter, instruction banner with a gold
-    /// edge, pace pill, XP, coins, pause button and joystick. Reads RouteDirector state and listens to its
+    /// The in-game HUD in the target style: title card, lap timer, lap counter, instruction banner with a gold
+    /// edge, pace pill, XP, coins, pause and settings buttons and joystick. Reads RouteDirector state and listens to its
     /// events; it never changes game state itself.
     /// </summary>
     public class HudController : MonoBehaviour
@@ -24,6 +24,9 @@ namespace CityWalk
 
         // XP float under the coin counter, for every XP gain ("Lap bonus +20 XP", "Brisk bonus +5 XP").
         const float XpFloatSeconds = 1.3f;
+
+        // Lap timer: orange in the last 15 seconds, pulsing in the last 10.
+        const float TimerWarnSeconds = 15f, TimerPulseSeconds = 10f;
         static readonly Vector2 XpFloatPos = new Vector2(-152f, -206f);
         static readonly Color XpFloatColor = HudStyle.Hex(0xF3D27A);
 
@@ -32,9 +35,11 @@ namespace CityWalk
         public RectTransform Root { get; private set; }
 
         RouteDirector route;
-        TextMeshProUGUI lapValue, bannerTitle, bannerBody, pillText, xpText, coinText, xpFloat;
+        TextMeshProUGUI lapValue, bannerTitle, bannerBody, pillText, xpText, coinText, xpFloat, timerText, timerLabel;
         Image bannerFill, bannerBorder, bannerEdge, lapBorder, pillFill, pillBorder, paceFill;
-        RectTransform lapCard, coinCard, pillRect, paceTrack;
+        RectTransform lapCard, coinCard, pillRect, paceTrack, timerCard;
+        Image timerFill, timerBorder;
+        MissionFailedPanel failedPanel;
         float xpFloatAt = -10f, paceTextWidth;
         GameObject pill;
         PausePanel pausePanel;
@@ -60,6 +65,14 @@ namespace CityWalk
             HudStyle.Icon("Icon", title.transform, art.iconCity, new Vector2(0f, 0.5f), new Vector2(54f, 0f), 68f, Color.white);
             HudStyle.Label("Title", title.transform, "City Walk", 34, HudStyle.Text, TextAlignmentOptions.TopLeft, true).Inset(106f, 40f, 10f, 16f);
             HudStyle.Label("Subtitle", title.transform, "Morning routine", 22, HudStyle.TextMuted, TextAlignmentOptions.BottomLeft).Inset(106f, 18f, 10f, 56f);
+
+            // Lap timer, under the title card: time left to finish this lap.
+            timerFill = HudStyle.Card("LapTimer", root, TopLeft, TopLeft, new Vector2(40f, -160f), new Vector2(360f, 64f),
+                HudStyle.Panel, HudStyle.GoldEdge, out timerBorder);
+            timerCard = timerFill.rectTransform;
+            timerLabel = HudStyle.Label("Label", timerCard, "LAP TIME LEFT", 18, HudStyle.LabelMuted, TextAlignmentOptions.Left).Inset(26f, 0f, 0f, 0f);
+            timerLabel.characterSpacing = 6f;
+            timerText = HudStyle.Label("Value", timerCard, "1:30", 36, HudStyle.Text, TextAlignmentOptions.Right, true).Inset(0f, 0f, 26f, 0f);
 
             // Lap counter
             var lap = HudStyle.Card("LapCard", root, TopLeft, TopLeft, new Vector2(422f, -36f), new Vector2(126f, 104f),
@@ -146,6 +159,7 @@ namespace CityWalk
 
             pausePanel = PausePanel.Create(root);
             completePanel = RouteCompletePanel.Create(root);
+            failedPanel = MissionFailedPanel.Create(root);
             settingsPanel = SettingsPanel.Create(root, true);
         }
 
@@ -160,6 +174,11 @@ namespace CityWalk
                 xpFloat.text = string.IsNullOrEmpty(reason) ? $"+{amount} XP" : $"{reason} +{amount} XP";
                 xpFloatAt = Time.time;
                 xpFloat.gameObject.SetActive(true);
+            };
+            route.MissionFailed += () =>
+            {
+                Joystick.gameObject.SetActive(false);
+                failedPanel.Show(route);
             };
             route.RouteCompleted += () =>
             {
@@ -190,6 +209,7 @@ namespace CityWalk
             string title, body;
             bool warn = false;
             if (route.Phase == RoutePhase.Complete) { title = "Arrived"; body = "You reached the office."; }
+            else if (route.Phase == RoutePhase.Failed) { title = "Out of time"; body = $"Each lap must be done within {RouteDirector.FormatTime(route.lapTimeLimit)}."; warn = true; }
             else if (route.IsCoffeeMissed) { title = "Coffee missed"; body = "Go back to the kiosk and tap it. The lap will not count without it."; warn = true; }
             else if (route.IsWrongWay) { title = "Wrong way"; body = "Turn around and follow the green arrows."; warn = true; }
             else if (route.Phase == RoutePhase.ToOffice) { title = "Get to the office"; body = "Laps done. Follow the arrows to the yellow marker."; }
@@ -206,6 +226,24 @@ namespace CityWalk
 
             RefreshPace();
             RefreshXpFloat();
+            RefreshTimer();
+        }
+
+        void RefreshTimer()
+        {
+            bool show = route.LapTimerRunning;
+            if (timerCard.gameObject.activeSelf != show) timerCard.gameObject.SetActive(show);
+            if (!show) return;
+
+            float left = route.LapTimeLeft;
+            int s = Mathf.CeilToInt(left);   // counts 1:30, 1:29 ... 0:01, then the mission fails
+            timerText.text = $"{s / 60}:{s % 60:00}";
+            bool warn = left <= TimerWarnSeconds;
+            timerText.color = warn ? HudStyle.Warning : HudStyle.Text;
+            timerFill.color = warn ? HudStyle.WarningPanel : HudStyle.Panel;
+            timerBorder.color = warn ? HudStyle.Warning : HudStyle.GoldEdge;
+            float pulse = left <= TimerPulseSeconds ? Mathf.Abs(Mathf.Sin(left * Mathf.PI)) : 0f;   // once a second
+            timerCard.localScale = Vector3.one * (1f + 0.06f * pulse);
         }
 
         void RefreshPace()

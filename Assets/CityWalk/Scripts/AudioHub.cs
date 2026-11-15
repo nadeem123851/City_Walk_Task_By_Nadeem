@@ -83,6 +83,7 @@ namespace CityWalk
             route.CoffeeMissed += () => Play(sounds.missed);
             route.WrongWayChanged += wrong => { if (wrong) Play(sounds.wrongWay); };
             route.RouteCompleted += () => Play(sounds.finish);
+            route.MissionFailed += () => Play(sounds.fail);
             route.CoinCollected += total => Play(sounds.coin);
             route.PaceNudged += () => Play(sounds.nudge);
             route.BriskBonus += () => Play(sounds.bonus);

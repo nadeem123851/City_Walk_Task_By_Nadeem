@@ -22,6 +22,8 @@ namespace CityWalk
         public float arriveRadius = 2.5f;
         [Tooltip("Rush hour lasts for laps 1 to this one.")]
         public int rushHourLaps = 2;
+        [Tooltip("Each lap must be finished within this many seconds, or the mission fails.")]
+        public float lapTimeLimit = 90f;
         [Tooltip("Seconds after taking the coffee during which the wrong-way warning is off, so turning away from the kiosk is not punished.")]
         public float coffeeGraceSeconds = 1.6f;
 
@@ -57,6 +59,12 @@ namespace CityWalk
         /// <summary>Coins picked up on the route.</summary>
         public int Coins { get; private set; }
         public float ElapsedTime { get; private set; }
+        /// <summary>Time spent on the current lap.</summary>
+        public float CurrentLapTime => ElapsedTime - lapStartTime;
+        /// <summary>Seconds left to finish the current lap; the lap timer only runs while laps are being walked.</summary>
+        public float LapTimeLeft => Mathf.Max(0f, lapTimeLimit - CurrentLapTime);
+        /// <summary>True while the lap timer is counting down.</summary>
+        public bool LapTimerRunning => Phase == RoutePhase.Laps;
 
         /// <summary>Star rating: 3 with no mistakes, 2 with 1 to 3 (wrong turns, missed kiosks), 1 otherwise.</summary>
         public int Stars
@@ -85,6 +93,8 @@ namespace CityWalk
         /// <summary>Brisk walking earned its bonus XP.</summary>
         public event Action BriskBonus;
         public event Action RouteCompleted;
+        /// <summary>A lap took longer than the time limit: the mission failed.</summary>
+        public event Action MissionFailed;
 
         PlayerMover player;
         LapTracker laps;
@@ -158,6 +168,12 @@ namespace CityWalk
                     case LapStepResult.LapRejectedNoCoffee: LapRejected?.Invoke(); break;
                 }
                 along = laps.AlongSpeed(pos, vel);
+
+                if (Phase == RoutePhase.Laps && CurrentLapTime >= lapTimeLimit)
+                {
+                    Fail();
+                    return;
+                }
             }
             else
             {
@@ -209,6 +225,17 @@ namespace CityWalk
             player.MovementLocked = true;
             SetPhase(RoutePhase.Complete);
             RouteCompleted?.Invoke();
+        }
+
+        /// <summary>Out of time on a lap: the player stops and the mission-failed card follows.</summary>
+        void Fail()
+        {
+            if (wrongWay.Suppress()) WrongWayChanged?.Invoke(false);
+            pace.Reset();
+            IsCoffeeMissed = false;
+            player.MovementLocked = true;
+            SetPhase(RoutePhase.Failed);
+            MissionFailed?.Invoke();
         }
 
         void AddXp(int amount, string reason)

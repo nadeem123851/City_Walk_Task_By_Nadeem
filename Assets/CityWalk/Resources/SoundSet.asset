@@ -36,6 +36,10 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 6b87cb500491aba45b78577be7c1ec35, type: 3}
     volume: 0.9
     pitchJitter: 0
+  fail:
+    clip: {fileID: 8300000, guid: fcb46743cc2d839459a62d59dc7e558f, type: 3}
+    volume: 0.85
+    pitchJitter: 0
   coin:
     clip: {fileID: 8300000, guid: 868e916e6240a624a8924d828325e4c4, type: 3}
     volume: 0.6

@@ -29,6 +29,8 @@ namespace CityWalk
         public Sound missed = new Sound { volume = 0.75f };
         public Sound wrongWay = new Sound { volume = 0.7f };
         public Sound finish = new Sound { volume = 0.9f };
+        [Tooltip("Mission failed: out of time on a lap.")]
+        public Sound fail = new Sound { volume = 0.85f };
         public Sound coin = new Sound { volume = 0.6f, pitchJitter = 0.05f };
         [Tooltip("Rush hour pace nudge: \"Pick up the pace\".")]
         public Sound nudge = new Sound { volume = 0.6f };
