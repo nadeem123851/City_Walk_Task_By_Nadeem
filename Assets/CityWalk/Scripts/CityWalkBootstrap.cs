@@ -64,6 +64,7 @@ namespace CityWalk
             route.officeMarker = new Vector3(p * 1.5f, 0f, -p * 0.5f);
             route.Begin(mover);
             hud.gameObject.AddComponent<RouteHudView>().Init(route, hud);
+            hud.gameObject.AddComponent<PaceHint>().Init(route, hud);
             KioskInteraction.Create(route, playerGo.transform, hud.transform);
         }
 

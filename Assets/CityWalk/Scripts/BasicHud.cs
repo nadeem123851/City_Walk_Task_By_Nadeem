@@ -16,8 +16,8 @@ namespace CityWalk
 
         public VirtualJoystick Joystick { get; private set; }
 
-        Text counterLabel, counterText, instructionTitle, instructionBody;
-        GameObject pauseOverlay, completePanel;
+        Text counterLabel, counterText, instructionTitle, instructionBody, pillText;
+        GameObject pauseOverlay, completePanel, pill;
 
         public static BasicHud Create()
         {
@@ -73,6 +73,13 @@ namespace CityWalk
             instructionBody = UiFactory.Label("InstructionBody", banner.transform, "", 24, SubInk, TextAnchor.LowerCenter);
             instructionBody.rectTransform.offsetMin = new Vector2(16f, 14f);
 
+            // Hint pill under the banner (pace hint)
+            var pillImg = UiFactory.Panel("HintPill", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -160f), new Vector2(520f, 56f), Card);
+            pillText = UiFactory.Label("HintText", pillImg.transform, "", 24, Ink, TextAnchor.MiddleCenter);
+            pill = pillImg.gameObject;
+            pill.SetActive(false);
+
             // Pause button
             var pauseBtn = UiFactory.Panel("PauseButton", root, new Vector2(1f, 1f), new Vector2(1f, 1f),
                 new Vector2(-40f, -36f), new Vector2(96f, 96f), Card, UiFactory.Circle);
@@ -119,6 +126,14 @@ namespace CityWalk
         public void SetCounter(int done, int total) => counterText.text = $"{done}/{total}";
 
         public void SetCounterLabel(string label) => counterLabel.text = label;
+
+        /// <summary>Shows the hint pill under the banner, or hides it when text is empty.</summary>
+        public void SetHint(string text)
+        {
+            bool show = !string.IsNullOrEmpty(text);
+            if (show) pillText.text = text;
+            if (pill.activeSelf != show) pill.SetActive(show);
+        }
 
         public void SetPaused(bool paused)
         {
