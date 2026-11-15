@@ -69,10 +69,8 @@ namespace CityWalk
                 icon.raycastTarget = false;
             }
 
-            var label = UiFactory.Label("Label", face.transform, "Tap to grab\ncoffee", 30, ButtonInk, TextAnchor.MiddleCenter, FontStyle.Bold);
-            label.rectTransform.offsetMin = new Vector2(10f, 20f);
-            label.rectTransform.offsetMax = new Vector2(-10f, -110f);
-            label.lineSpacing = 0.9f;
+            HudStyle.Label("Label", face.transform, "Tap to grab\ncoffee", 30, ButtonInk, TMPro.TextAlignmentOptions.Center, true)
+                .Inset(10f, 20f, 10f, 110f).lineSpacing = -12f;
 
             var btn = rim.gameObject.AddComponent<Button>();
             btn.targetGraphic = face;

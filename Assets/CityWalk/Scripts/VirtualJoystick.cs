@@ -9,7 +9,7 @@ namespace CityWalk
     /// </summary>
     public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
-        public float radius = 90f;
+        public float radius = 74f;
         public Vector2 Value { get; private set; }
 
         RectTransform baseRect;
@@ -17,10 +17,20 @@ namespace CityWalk
 
         public static VirtualJoystick Create(Transform canvas)
         {
-            var bg = UiFactory.Panel("Joystick", canvas, new Vector2(0f, 0f), new Vector2(0.5f, 0.5f),
-                new Vector2(230f, 210f), new Vector2(240f, 240f), new Color(1f, 1f, 1f, 0.35f), UiFactory.Circle);
-            var knobImg = UiFactory.Panel("Knob", bg.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                Vector2.zero, new Vector2(96f, 96f), new Color(1f, 1f, 1f, 0.9f), UiFactory.Circle);
+            var art = UiArt.Instance;
+            var centre = new Vector2(0.5f, 0.5f);
+
+            // Dark green disc with a thin gold rim (a slightly larger gold disc behind it), and a pearl knob
+            var circle = art.circle != null ? art.circle : UiFactory.Circle;
+            var bg = UiFactory.Panel("Joystick", canvas, new Vector2(0f, 0f), centre,
+                new Vector2(237f, 207f), new Vector2(252f, 252f), HudStyle.GoldEdge, circle);
+            bg.type = Image.Type.Simple;
+            var disc = UiFactory.Panel("Disc", bg.transform, centre, centre, Vector2.zero, new Vector2(248f, 248f), HudStyle.Panel, circle);
+            disc.type = Image.Type.Simple;
+            disc.raycastTarget = false;
+            var knobImg = UiFactory.Panel("Knob", bg.transform, centre, centre,
+                Vector2.zero, new Vector2(104f, 104f), Color.white, art.knob != null ? art.knob : UiFactory.Circle);
+            knobImg.type = Image.Type.Simple;
             knobImg.raycastTarget = false;
 
             var js = bg.gameObject.AddComponent<VirtualJoystick>();

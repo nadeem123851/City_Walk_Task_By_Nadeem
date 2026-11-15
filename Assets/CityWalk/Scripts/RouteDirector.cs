@@ -44,7 +44,19 @@ namespace CityWalk
         /// <summary>Laps 1 and 2: the player is asked to walk briskly.</summary>
         public bool IsRushHour => Phase == RoutePhase.Laps && CurrentLap <= rushHourLaps;
         public int Xp { get; private set; }
+        /// <summary>Coins picked up on the route (coin pickups arrive with the extras).</summary>
+        public int Coins { get; private set; }
         public float ElapsedTime { get; private set; }
+
+        /// <summary>Star rating: 3 with no mistakes, 2 with 1 to 3 (wrong turns, missed kiosks), 1 otherwise.</summary>
+        public int Stars
+        {
+            get
+            {
+                int mistakes = WrongTurns + MissedKiosks;
+                return Mathf.Clamp(3 - Mathf.CeilToInt(mistakes / 3f), 1, 3);
+            }
+        }
 
         /// <summary>Lap number just finished and its time in seconds.</summary>
         public event Action<int, float> LapCompleted;

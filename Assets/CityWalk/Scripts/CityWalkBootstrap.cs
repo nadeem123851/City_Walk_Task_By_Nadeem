@@ -51,7 +51,7 @@ namespace CityWalk
             mover.cameraTransform = camGo.transform;
 
             // HUD
-            var hud = BasicHud.Create();
+            var hud = HudController.Create();
             mover.joystick = hud.Joystick;
 
             // Spawn on the lap line on the road south of the park, facing east
@@ -63,9 +63,8 @@ namespace CityWalk
             route.kioskMarker = new Vector3(p * 0.5f, 0f, -p * 0.5f);
             route.officeMarker = new Vector3(p * 1.5f, 0f, -p * 0.5f);
             route.Begin(mover);
-            hud.gameObject.AddComponent<RouteHudView>().Init(route, hud);
-            hud.gameObject.AddComponent<PaceHint>().Init(route, hud);
-            KioskInteraction.Create(route, playerGo.transform, hud.transform);
+            hud.Bind(route);
+            KioskInteraction.Create(route, playerGo.transform, hud.Root);
             GuidanceChevrons.Create(route, playerGo.transform);
         }
 
