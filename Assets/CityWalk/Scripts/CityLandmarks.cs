@@ -3,7 +3,7 @@ using UnityEngine;
 namespace CityWalk
 {
     /// <summary>
-    /// Builds the named places on the route: coffee kiosk, office sign, bank portico and cafe front.
+    /// Builds the named places on the route: coffee kiosk, office sign, bank portico, cafe front and the lap gate.
     /// Positions match the web preview (WebSource/main.js) with z mirrored for Unity.
     /// Also decides which building lots are reshaped or left empty to make room for them.
     /// </summary>
@@ -21,6 +21,8 @@ namespace CityWalk
 
         public static readonly Vector3 KioskPosition = new Vector3(27.6f, 0f, -27.2f);
         public static readonly Vector3 OfficeSignPosition = new Vector3(58.4f, 0f, -10.4f);
+        public const float LapGateX = -10f;
+        public const float LapRoadZ = -17f;
 
         /// <summary>
         /// Adjusts one building lot. bx, bz pick the block (0..4) and i, j the lot inside it (0..1).
@@ -59,6 +61,7 @@ namespace CityWalk
             BuildOfficeSign(root, art);
             BuildBank(root, art);
             BuildCafe(root, art);
+            BuildLapGate(root, art);
         }
 
         static void BuildKiosk(Transform root, CityArt art)
@@ -111,6 +114,21 @@ namespace CityWalk
                 Cylinder(c, "TableTop", 0.45f, 0.05f, new Vector3(0.05f, 0.92f, dz), Stone);
                 Box(c, "TableLeg", new Vector3(0.08f, 0.75f, 0.08f), new Vector3(0.05f, 0.52f, dz), Metal);
             }
+        }
+
+        static void BuildLapGate(Transform root, CityArt art)
+        {
+            var g = new GameObject("LapGate").transform;
+            g.SetParent(root, false);
+            g.localPosition = new Vector3(LapGateX, 0f, LapRoadZ);
+
+            Cylinder(g, "Post_North", 0.1f, 5.2f, new Vector3(0f, 2.6f, 5.3f), Green);
+            Cylinder(g, "Post_South", 0.1f, 5.2f, new Vector3(0f, 2.6f, -5.3f), Green);
+            Box(g, "Banner", new Vector3(0.14f, 0.9f, 10.8f), new Vector3(0f, 4.75f, 0f), Green);
+            Box(g, "TrimTop", new Vector3(0.18f, 0.1f, 10.8f), new Vector3(0f, 5.25f, 0f), Gold);
+            Box(g, "TrimBottom", new Vector3(0.18f, 0.1f, 10.8f), new Vector3(0f, 4.25f, 0f), Gold);
+            Sign(g, "Sign", art.signLapLine, new Vector3(-0.08f, 4.75f, 0f), new Vector2(3.2f, 0.8f), Vector3.left);
+            Box(g, "RoadStripe", new Vector3(0.5f, 0.02f, 10f), new Vector3(0f, 0.015f, 0f), Gold);
         }
 
         // ---------- helpers ----------
