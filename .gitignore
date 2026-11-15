@@ -62,3 +62,13 @@ desktop.ini
 
 # Large reference video kept out of the repo
 /Docs/*.mp4
+
+# Character pack files not used by the game (kept locally only)
+/Assets/Ultimate Modular Men- Feb 2022/
+/Assets/Ultimate Modular Men- Feb 2022.meta
+/Assets/Models/King/
+/Assets/Models/King.meta
+/Assets/Models/Swat/
+/Assets/Models/Swat.meta
+/Assets/Models/Astronaut/
+/Assets/Models/Astronaut.meta
