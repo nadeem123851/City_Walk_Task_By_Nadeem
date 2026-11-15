@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/CityWalk/Scenes/Home.unity
+    guid: 7fff02861cf751548ad71b4cd1426585
+  - enabled: 1
     path: Assets/CityWalk/Scenes/CityWalk.unity
     guid: 14d85200e5c91d64cb4602d25cf44983
   m_configObjects:

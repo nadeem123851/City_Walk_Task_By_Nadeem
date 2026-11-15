@@ -24,3 +24,4 @@ MonoBehaviour:
   iconCity: {fileID: 21300000, guid: 85197cc408004924e962f8e78d946ac9, type: 3}
   iconStar: {fileID: 21300000, guid: 94778e086766b2643a9163b2bf9dc9cc, type: 3}
   iconPause: {fileID: 21300000, guid: d8a9c78cf38112b46be668c18c8d20b6, type: 3}
+  homeBackground: {fileID: 21300000, guid: 4f8b828b3bf3793479b0c813b1fcde5c, type: 3}

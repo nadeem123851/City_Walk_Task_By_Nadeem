@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace CityWalk
@@ -29,40 +28,14 @@ namespace CityWalk
         RouteCompletePanel completePanel;
         string lapMessageTitle, lapMessageBody;
         float lapMessageUntil = -1f, lapPulseAt = -10f;
-        bool finished;
 
         public static HudController Create()
         {
-            EnsureEventSystem();
-
-            var canvasGo = new GameObject("HUD", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            var canvas = canvasGo.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 10;
-            var scaler = canvasGo.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.matchWidthOrHeight = 0.5f;
-
-            var safe = UiFactory.MakeRect("SafeArea", canvasGo.transform, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-            HudStyle.Stretch(safe);
-            safe.gameObject.AddComponent<SafeArea>();
-
-            var hud = canvasGo.AddComponent<HudController>();
+            var canvas = HudStyle.CreateCanvas("HUD", 10, out var safe);
+            var hud = canvas.gameObject.AddComponent<HudController>();
             hud.Root = safe;
             hud.Build(safe);
             return hud;
-        }
-
-        static void EnsureEventSystem()
-        {
-            if (Object.FindFirstObjectByType<EventSystem>() != null) return;
-            var es = new GameObject("EventSystem", typeof(EventSystem));
-#if ENABLE_INPUT_SYSTEM
-            es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
-#else
-            es.AddComponent<StandaloneInputModule>();
-#endif
         }
 
         void Build(Transform root)
@@ -117,7 +90,7 @@ namespace CityWalk
             Joystick = VirtualJoystick.Create(root);
 
             pausePanel = PausePanel.Create(root);
-            completePanel = RouteCompletePanel.Create(root, OnContinue);
+            completePanel = RouteCompletePanel.Create(root);
         }
 
         /// <summary>Starts showing a route.</summary>
@@ -139,12 +112,6 @@ namespace CityWalk
             Refresh();
         }
 
-        void OnContinue()
-        {
-            finished = true;
-            Refresh();
-        }
-
         void Update()
         {
             if (route != null) Refresh();
@@ -162,11 +129,7 @@ namespace CityWalk
 
             string title, body;
             bool warn = false;
-            if (route.Phase == RoutePhase.Complete)
-            {
-                title = finished ? "Route finished" : "Arrived";
-                body = finished ? "Your morning walk is done. See you tomorrow." : "You reached the office.";
-            }
+            if (route.Phase == RoutePhase.Complete) { title = "Arrived"; body = "You reached the office."; }
             else if (route.IsCoffeeMissed) { title = "Coffee missed"; body = "Go back to the kiosk and tap it. The lap will not count without it."; warn = true; }
             else if (route.IsWrongWay) { title = "Wrong way"; body = "Turn around and follow the green arrows."; warn = true; }
             else if (Time.time < lapMessageUntil) { title = lapMessageTitle; body = lapMessageBody; }

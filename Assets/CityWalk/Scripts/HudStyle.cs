@@ -13,7 +13,8 @@ namespace CityWalk
         // The plan says #092E26 at 90 percent. Unity blends UI in linear colour space, which lets a bright
         // background lift a dark panel far more than the browser did, so 97 percent gives the same look on screen.
         public static readonly Color Panel = Hex(0x092E26, 0.97f);
-        public static readonly Color PanelSolid = Hex(0x0B3A30, 0.97f);
+        // Cards and dialogs are fully opaque: in linear colour space even 3 percent see-through shows the city clearly.
+        public static readonly Color PanelSolid = Hex(0x0B3A30, 1f);
         public static readonly Color Gold = Hex(0xE3BD62);
         public static readonly Color GoldEdge = Hex(0xD6B25E, 0.45f);
         public static readonly Color Text = Hex(0xF4EFE0);
@@ -27,6 +28,55 @@ namespace CityWalk
         static readonly Vector2 Centre = new Vector2(0.5f, 0.5f);
 
         public static UiArt Art => UiArt.Instance;
+
+        /// <summary>
+        /// Screen-space canvas scaled from 1920x1080 (match 0.5), with an event system.
+        /// Returns the canvas; <paramref name="safeArea"/> is a child rect kept clear of notches.
+        /// </summary>
+        public static Canvas CreateCanvas(string name, int sortingOrder, out RectTransform safeArea)
+        {
+            EnsureEventSystem();
+            var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvas = go.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = sortingOrder;
+            var scaler = go.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+
+            safeArea = UiFactory.MakeRect("SafeArea", go.transform, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            Stretch(safeArea);
+            safeArea.gameObject.AddComponent<SafeArea>();
+            return canvas;
+        }
+
+        static void EnsureEventSystem()
+        {
+            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() != null) return;
+            var es = new GameObject("EventSystem", typeof(UnityEngine.EventSystems.EventSystem));
+#if ENABLE_INPUT_SYSTEM
+            es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+#else
+            es.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+#endif
+        }
+
+        /// <summary>A small confirm dialog: title, message, and two buttons. Hidden until shown.</summary>
+        public static GameObject ConfirmDialog(string name, Transform parent, string title, string message,
+            string confirmLabel, System.Action onConfirm, string cancelLabel, System.Action onCancel)
+        {
+            var dim = DimOverlay(name, parent);
+            var card = Card("Card", dim.transform, Centre, Centre, Vector2.zero, new Vector2(700f, 330f), PanelSolid, Gold, out _);
+            Label("Title", card.transform, title, 44, Text, TMPro.TextAlignmentOptions.Top, true).Inset(0f, 0f, 0f, 44f);
+            Label("Message", card.transform, message, 26, TextMuted, TMPro.TextAlignmentOptions.Top).Inset(30f, 0f, 30f, 112f);
+            OutlineButton("Confirm", card.transform, confirmLabel, new Vector2(0.5f, 0f), new Vector2(-135f, 82f), new Vector2(240f, 84f))
+                .onClick.AddListener(() => onConfirm?.Invoke());
+            GoldButton("Cancel", card.transform, cancelLabel, new Vector2(0.5f, 0f), new Vector2(135f, 82f), new Vector2(240f, 84f))
+                .onClick.AddListener(() => onCancel?.Invoke());
+            dim.gameObject.SetActive(false);
+            return dim.gameObject;
+        }
 
         /// <summary>A panel: tinted fill plus a thin gold border on top.</summary>
         public static Image Card(string name, Transform parent, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size,

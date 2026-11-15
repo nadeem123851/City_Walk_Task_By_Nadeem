@@ -25,6 +25,9 @@ namespace CityWalk
         public Sprite iconStar;
         public Sprite iconPause;
 
+        [Header("Screens")]
+        public Sprite homeBackground;
+
         static UiArt instance;
 
         /// <summary>The UiArt asset in Resources, or an empty one if it is missing.</summary>

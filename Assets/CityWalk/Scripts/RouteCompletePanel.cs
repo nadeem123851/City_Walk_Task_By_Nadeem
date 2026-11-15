@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace CityWalk
 {
     /// <summary>
-    /// End card: stars, a summary of the run, XP, coins and time, with Replay (restart the route)
-    /// and Continue (close the card and stay in the finished state). Fades in shortly after arrival.
+    /// End card: stars, a summary of the run, XP, coins and time, with Restart (play the route again)
+    /// and Home (back to the home screen). Fades in shortly after arrival.
     /// </summary>
     public class RouteCompletePanel : MonoBehaviour
     {
@@ -23,14 +22,12 @@ namespace CityWalk
         RectTransform card;
         TextMeshProUGUI summary, xpValue, coinValue, timeValue;
         readonly List<Image> stars = new List<Image>();
-        System.Action onContinue;
         float shownAt = -1f;
 
-        public static RouteCompletePanel Create(Transform root, System.Action onContinue)
+        public static RouteCompletePanel Create(Transform root)
         {
             var dim = HudStyle.DimOverlay("RouteCompleteOverlay", root);
             var panel = dim.gameObject.AddComponent<RouteCompletePanel>();
-            panel.onContinue = onContinue;
             panel.group = dim.gameObject.AddComponent<CanvasGroup>();
             panel.Build(dim.transform);
             dim.gameObject.SetActive(false);
@@ -57,10 +54,10 @@ namespace CityWalk
             coinValue = Stat("Coins", 0f, "Coins");
             timeValue = Stat("Time", 220f, "Time");
 
-            HudStyle.OutlineButton("Replay", card, "Replay", Top, new Vector2(-137f, -512f), new Vector2(252f, 84f))
-                .onClick.AddListener(Replay);
-            HudStyle.GoldButton("Continue", card, "Continue", Top, new Vector2(137f, -512f), new Vector2(250f, 84f))
-                .onClick.AddListener(Continue);
+            HudStyle.OutlineButton("Restart", card, "Restart", Top, new Vector2(-137f, -512f), new Vector2(252f, 84f))
+                .onClick.AddListener(GameScenes.Restart);
+            HudStyle.GoldButton("Home", card, "Home", Top, new Vector2(137f, -512f), new Vector2(250f, 84f))
+                .onClick.AddListener(GameScenes.LoadHome);
         }
 
         TextMeshProUGUI Stat(string name, float x, string label)
@@ -96,19 +93,6 @@ namespace CityWalk
             group.alpha = t;
             group.interactable = group.blocksRaycasts = t > 0.5f;
             card.localScale = Vector3.one * Mathf.Lerp(0.92f, 1f, Mathf.SmoothStep(0f, 1f, t));
-        }
-
-        void Replay()
-        {
-            Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-
-        void Continue()
-        {
-            shownAt = -1f;
-            gameObject.SetActive(false);
-            onContinue?.Invoke();
         }
 
         static string Plural(int n, string word) => $"{n} {word}{(n == 1 ? "" : "s")}";
