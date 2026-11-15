@@ -7,7 +7,8 @@ namespace CityWalk
 {
     /// <summary>
     /// End card: stars, a summary of the run, XP, coins and time, with Restart (play the route again)
-    /// and Home (back to the home screen). Fades in shortly after arrival.
+    /// and Home (back to the home screen). Fades in once the finish shot has swung round the player, and the
+    /// earned stars pop in one after another.
     /// </summary>
     public class RouteCompletePanel : MonoBehaviour
     {
@@ -16,13 +17,15 @@ namespace CityWalk
         static readonly Color StatFill = HudStyle.Hex(0x154238, 0.9f);
         static readonly Color StatEdge = HudStyle.Hex(0xD6B25E, 0.3f);
         static readonly Color StarOff = new Color(1f, 1f, 1f, 0.18f);
-        const float ShowDelay = 1.2f, FadeTime = 0.4f;
+        const float ShowDelay = 3f, FadeTime = 0.4f;           // ShowDelay matches the finish shot (FollowCamera)
+        const float StarDelay = 0.25f, StarGap = 0.18f, StarPop = 0.35f;   // after the card is in
 
         CanvasGroup group;
         RectTransform card;
         TextMeshProUGUI summary, xpValue, coinValue, timeValue;
         readonly List<Image> stars = new List<Image>();
         float shownAt = -1f;
+        int earnedStars;
 
         public static RouteCompletePanel Create(Transform root)
         {
@@ -69,7 +72,12 @@ namespace CityWalk
 
         public void Show(RouteDirector route)
         {
-            for (int i = 0; i < stars.Count; i++) stars[i].color = i < route.Stars ? HudStyle.Gold : StarOff;
+            earnedStars = route.Stars;
+            for (int i = 0; i < stars.Count; i++)
+            {
+                stars[i].color = i < earnedStars ? HudStyle.Gold : StarOff;
+                stars[i].rectTransform.localScale = i < earnedStars ? Vector3.zero : Vector3.one;
+            }
 
             var bits = new List<string> { $"{route.TotalLaps} laps", Plural(route.Coffees, "coffee"), Plural(route.WrongTurns, "wrong turn") };
             if (route.MissedKiosks > 0) bits.Add(Plural(route.MissedKiosks, "missed kiosk"));
@@ -89,10 +97,28 @@ namespace CityWalk
         void Update()
         {
             if (shownAt < 0f) return;
-            float t = Mathf.Clamp01((Time.unscaledTime - shownAt - ShowDelay) / FadeTime);
+            float since = Time.unscaledTime - shownAt - ShowDelay;
+            float t = Mathf.Clamp01(since / FadeTime);
             group.alpha = t;
             group.interactable = group.blocksRaycasts = t > 0.5f;
             card.localScale = Vector3.one * Mathf.Lerp(0.92f, 1f, Mathf.SmoothStep(0f, 1f, t));
+
+            // Earned stars pop in one by one, overshooting a little.
+            for (int i = 0; i < earnedStars && i < stars.Count; i++)
+            {
+                float s = Mathf.Clamp01((since - FadeTime - StarDelay - i * StarGap) / StarPop);
+                stars[i].rectTransform.localScale = Vector3.one * Pop(s);
+            }
+        }
+
+        /// <summary>0 to 1 with an overshoot to about 1.25 on the way.</summary>
+        static float Pop(float s)
+        {
+            if (s <= 0f) return 0f;
+            if (s >= 1f) return 1f;
+            const float c = 2.6f;   // back-ease overshoot
+            float x = s - 1f;
+            return 1f + (c + 1f) * x * x * x + c * x * x;
         }
 
         static string Plural(int n, string word) => $"{n} {word}{(n == 1 ? "" : "s")}";

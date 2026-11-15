@@ -5,7 +5,8 @@ namespace CityWalk
     /// <summary>
     /// Behind-the-back camera. It swings round behind the player while they walk, and pulls in
     /// when a building gets between the player's head and the camera, so it never shows the
-    /// inside of a building. Pulls in fast, eases back out slowly.
+    /// inside of a building. Pulls in fast, eases back out slowly. At the office it plays the finish shot:
+    /// a swing round the player.
     /// </summary>
     public class FollowCamera : MonoBehaviour
     {
@@ -17,6 +18,12 @@ namespace CityWalk
         public float pitch = 12f;
         public float yawFollowSpeed = 2.5f;
         public float positionSmoothing = 10f;
+
+        [Header("Finish shot")]
+        [Tooltip("Length of the swing round the player at the office (s). The end card waits for it.")]
+        public float finishSeconds = 3f;
+        [Tooltip("Peak swing speed (degrees per second). With 3 s this turns the camera about 163 degrees, as in the web preview.")]
+        public float finishPeakSpeed = 85.5f;
 
         [Header("Collision")]
         [Tooltip("Layers the camera must stay out of.")]
@@ -31,11 +38,17 @@ namespace CityWalk
         public float easeOutSpeed = 3f;
 
         float yaw;
+        float finishStartedAt = -1f;
         Vector3 idealPosition;     // where the camera wants to be, ignoring buildings
         float distanceFraction = 1f; // share of the head-to-camera line actually used
 
         /// <summary>True while a building is pushing the camera in.</summary>
         public bool IsPulledIn => distanceFraction < 0.98f;
+        /// <summary>True while the finish swing is playing.</summary>
+        public bool IsPlayingFinishShot => finishStartedAt >= 0f && Time.time - finishStartedAt < finishSeconds;
+
+        /// <summary>Starts the finish shot: the camera eases round the player, fastest halfway, then settles.</summary>
+        public void PlayFinishShot() => finishStartedAt = Time.time;
 
         void Awake()
         {
@@ -57,9 +70,16 @@ namespace CityWalk
             if (target == null) return;
             float dt = Time.deltaTime;
 
-            bool moving = player != null && player.CurrentSpeed > 0.2f;
-            if (moving)
+            if (finishStartedAt >= 0f)
+            {
+                // Swing speed follows half a sine wave, so it starts and ends gently.
+                float u = (Time.time - finishStartedAt) / finishSeconds;
+                if (u < 1f) yaw += finishPeakSpeed * Mathf.Sin(Mathf.PI * u) * dt;
+            }
+            else if (player != null && player.CurrentSpeed > 0.2f)
+            {
                 yaw = Mathf.LerpAngle(yaw, target.eulerAngles.y, yawFollowSpeed * dt);
+            }
 
             idealPosition = Vector3.Lerp(idealPosition, DesiredPosition(), positionSmoothing * dt);
 

@@ -70,6 +70,13 @@ namespace CityWalk
             PedestrianManager.Create(route, camGo.transform);
             CoinField.Create(route, playerGo.transform);
             AudioHub.Instance?.Bind(route);
+
+            // Finish shot: the camera swings round the player at the office and sparkles burst; the end card follows.
+            route.RouteCompleted += () =>
+            {
+                follow.PlayFinishShot();
+                Sparkles.Burst(playerGo.transform.position + Vector3.up * 1.5f, 40, 4f);
+            };
         }
 
         // Haze colour from the web preview; also the camera background if the sky material is missing.
