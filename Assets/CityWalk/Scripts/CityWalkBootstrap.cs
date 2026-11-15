@@ -66,6 +66,7 @@ namespace CityWalk
             hud.gameObject.AddComponent<RouteHudView>().Init(route, hud);
             hud.gameObject.AddComponent<PaceHint>().Init(route, hud);
             KioskInteraction.Create(route, playerGo.transform, hud.transform);
+            GuidanceChevrons.Create(route, playerGo.transform);
         }
 
         // Haze colour from the web preview; also the camera background if the sky material is missing.
