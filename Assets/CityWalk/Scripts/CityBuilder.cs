@@ -78,6 +78,10 @@ namespace CityWalk
             }
 
             CityLandmarks.Build(transform);
+
+            // The city is built at runtime, so the Static flag alone does nothing: merge its meshes by material
+            // here instead. Nothing under the city moves after this point.
+            StaticBatchingUtility.Combine(gameObject);
         }
 
         public Vector3 BlockCentre(int x, int z)
