@@ -4,12 +4,19 @@ using UnityEngine;
 namespace CityWalk
 {
     /// <summary>
-    /// Creates simple coloured materials that work in both URP and the Built-in pipeline.
-    /// It copies the default material Unity gives a primitive, so the right shader is always used.
+    /// Creates simple coloured materials.
+    /// Copies the URP Lit material assets in Resources so their shader (and its emission variant)
+    /// is included in player builds. In a build, a primitive's default material uses the Built-in
+    /// shader, which URP draws pink. Falls back to that default material when the assets are missing,
+    /// so the Built-in pipeline still works.
     /// </summary>
     public static class MaterialFactory
     {
+        const string BaseLitPath = "CityWalk_BaseLit";
+        const string BaseLitEmissivePath = "CityWalk_BaseLitEmissive";
+
         static Material baseMaterial;
+        static Material emissiveBaseMaterial;
         static readonly Dictionary<string, Material> cache = new Dictionary<string, Material>();
 
         static Material BaseMaterial
@@ -18,11 +25,28 @@ namespace CityWalk
             {
                 if (baseMaterial == null)
                 {
-                    var probe = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    baseMaterial = probe.GetComponent<Renderer>().sharedMaterial;
-                    Object.DestroyImmediate(probe);
+                    baseMaterial = Resources.Load<Material>(BaseLitPath);
+                    if (baseMaterial == null)
+                    {
+                        var probe = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        baseMaterial = probe.GetComponent<Renderer>().sharedMaterial;
+                        Object.DestroyImmediate(probe);
+                    }
                 }
                 return baseMaterial;
+            }
+        }
+
+        static Material EmissiveBaseMaterial
+        {
+            get
+            {
+                if (emissiveBaseMaterial == null)
+                {
+                    emissiveBaseMaterial = Resources.Load<Material>(BaseLitEmissivePath);
+                    if (emissiveBaseMaterial == null) emissiveBaseMaterial = BaseMaterial;
+                }
+                return emissiveBaseMaterial;
             }
         }
 
@@ -32,7 +56,8 @@ namespace CityWalk
             if (cache.TryGetValue(key, out var existing) && existing != null)
                 return existing;
 
-            var mat = new Material(BaseMaterial) { name = "CityWalk_" + key };
+            var source = emission > 0f ? EmissiveBaseMaterial : BaseMaterial;
+            var mat = new Material(source) { name = "CityWalk_" + key };
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
             if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.15f);
