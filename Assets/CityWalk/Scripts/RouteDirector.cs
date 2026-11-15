@@ -20,9 +20,10 @@ namespace CityWalk
         [Tooltip("Office marker one block east of the kiosk.")]
         public Vector3 officeMarker = new Vector3(51f, 0f, -17f);
         public float arriveRadius = 2.5f;
-        [Tooltip("Until the tap-to-grab button exists (Phase 4), walking this close to the kiosk marker takes the coffee.")]
-        public float autoCoffeeRadius = 4f;
-        public bool autoCoffee = true;
+        [Tooltip("Rush hour lasts for laps 1 to this one.")]
+        public int rushHourLaps = 2;
+        [Tooltip("Seconds after taking the coffee during which the wrong-way warning is off, so turning away from the kiosk is not punished.")]
+        public float coffeeGraceSeconds = 1.6f;
 
         [Header("XP")]
         public int lapXp = 20;
@@ -37,6 +38,11 @@ namespace CityWalk
         public bool IsWrongWay => wrongWay.IsWrongWay;
         public int WrongTurns => wrongWay.WrongTurns;
         public int Coffees { get; private set; }
+        /// <summary>The player walked past the kiosk without the coffee and must go back.</summary>
+        public bool IsCoffeeMissed { get; private set; }
+        public int MissedKiosks { get; private set; }
+        /// <summary>Laps 1 and 2: the player is asked to walk briskly.</summary>
+        public bool IsRushHour => Phase == RoutePhase.Laps && CurrentLap <= rushHourLaps;
         public int Xp { get; private set; }
         public float ElapsedTime { get; private set; }
 
@@ -45,6 +51,7 @@ namespace CityWalk
         /// <summary>A full turn was walked without the coffee, so it did not count.</summary>
         public event Action LapRejected;
         public event Action CoffeeGrabbed;
+        public event Action CoffeeMissed;
         public event Action<bool> WrongWayChanged;
         public event Action<RoutePhase> PhaseChanged;
         /// <summary>Amount and reason, for example (20, "Lap bonus").</summary>
@@ -55,6 +62,7 @@ namespace CityWalk
         LapTracker laps;
         readonly WrongWayDetector wrongWay = new WrongWayDetector();
         float lapStartTime;
+        float graceUntil;
         RouteMarker kioskMarkerView, officeMarkerView;
 
         public void Begin(PlayerMover playerMover)
@@ -73,9 +81,20 @@ namespace CityWalk
             if (Phase != RoutePhase.Laps || laps.CoffeeThisLap) return;
             laps.CoffeeThisLap = true;
             Coffees++;
+            IsCoffeeMissed = false;
+            graceUntil = ElapsedTime + coffeeGraceSeconds;
             AddXp(coffeeXp, "Coffee");
             CoffeeGrabbed?.Invoke();
             UpdateMarkers();
+        }
+
+        /// <summary>The player walked on past the kiosk without the coffee. Called by the kiosk interaction.</summary>
+        public void ReportCoffeeMissed()
+        {
+            if (Phase != RoutePhase.Laps || laps.CoffeeThisLap || IsCoffeeMissed) return;
+            IsCoffeeMissed = true;
+            MissedKiosks++;
+            CoffeeMissed?.Invoke();
         }
 
         void Update()
@@ -92,9 +111,6 @@ namespace CityWalk
 
             if (Phase == RoutePhase.Laps)
             {
-                if (autoCoffee && !laps.CoffeeThisLap && Vector2.Distance(pos, Flat(kioskMarker)) < autoCoffeeRadius)
-                    GrabCoffee();
-
                 switch (laps.Step(pos))
                 {
                     case LapStepResult.LapCompleted: OnLapCompleted(); break;
@@ -114,8 +130,11 @@ namespace CityWalk
                 along = Vector2.Dot(vel, toOffice / Mathf.Max(dist, 0.001f));
             }
 
-            if (wrongWay.Step(along, dt))
-                WrongWayChanged?.Invoke(wrongWay.IsWrongWay);
+            // Heading back for a missed coffee, or just turning away from the kiosk, is not the wrong way.
+            bool changed = IsCoffeeMissed || ElapsedTime < graceUntil
+                ? wrongWay.Suppress()
+                : wrongWay.Step(along, dt);
+            if (changed) WrongWayChanged?.Invoke(wrongWay.IsWrongWay);
         }
 
         void OnLapCompleted()

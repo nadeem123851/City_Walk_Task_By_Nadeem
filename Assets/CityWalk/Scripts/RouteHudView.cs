@@ -43,10 +43,11 @@ namespace CityWalk
 
             string title, body;
             if (route.Phase == RoutePhase.Complete) { title = "Arrived"; body = $"You reached the office in {RouteDirector.FormatTime(route.ElapsedTime)}.  {route.Xp} XP"; }
+            else if (route.IsCoffeeMissed) { title = "Coffee missed"; body = "Go back to the kiosk and tap it. The lap will not count without it."; }
             else if (route.IsWrongWay) { title = "Wrong way"; body = "Turn around and follow the route round the park."; }
             else if (Time.time < lapMessageUntil) { title = lapMessageTitle; body = lapMessageBody; }
             else if (route.Phase == RoutePhase.ToOffice) { title = "Get to the office"; body = "Laps done. Head east to the yellow marker."; }
-            else if (!route.CoffeeThisLap) { title = "Head for the yellow marker"; body = "The coffee kiosk is ahead at the next crossing."; }
+            else if (!route.CoffeeThisLap) { title = "Head for the yellow marker"; body = "The coffee kiosk is ahead. Tap it as you pass."; }
             else if (route.CurrentLap < route.TotalLaps) { title = "Coffee grabbed"; body = $"Keep going round the park to finish lap {route.CurrentLap}."; }
             else { title = "Last lap"; body = "Finish the lap, then head to the office."; }
 
