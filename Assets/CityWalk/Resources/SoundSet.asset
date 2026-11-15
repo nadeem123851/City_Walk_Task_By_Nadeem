@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42aba46f561c19b4a9403a25807c3106, type: 3}
+  m_Name: SoundSet
+  m_EditorClassIdentifier: Assembly-CSharp::CityWalk.SoundSet
+  step:
+    clip: {fileID: 8300000, guid: 0587d0f0337a8ed459ec5a0db7223163, type: 3}
+    volume: 0.45
+    pitchJitter: 0.08
+  coffee:
+    clip: {fileID: 8300000, guid: 1db9fd6f65b6c304eb58f2d8e6b1d23c, type: 3}
+    volume: 0.8
+    pitchJitter: 0
+  lap:
+    clip: {fileID: 8300000, guid: 8955bc20885332d40be24fc546121675, type: 3}
+    volume: 0.8
+    pitchJitter: 0
+  missed:
+    clip: {fileID: 8300000, guid: dd10103175f92cf4f84b7362ce06168e, type: 3}
+    volume: 0.75
+    pitchJitter: 0
+  wrongWay:
+    clip: {fileID: 8300000, guid: 225f8e4bfb841c14794543cebf41ede3, type: 3}
+    volume: 0.7
+    pitchJitter: 0
+  finish:
+    clip: {fileID: 8300000, guid: 6b87cb500491aba45b78577be7c1ec35, type: 3}
+    volume: 0.9
+    pitchJitter: 0
+  click:
+    clip: {fileID: 8300000, guid: 142e74f2d0e79a54787024520f070984, type: 3}
+    volume: 0.6
+    pitchJitter: 0
+  ambience:
+    clip: {fileID: 8300000, guid: a1e4c5a2f3b1d1b4cb959bf6ddae33cd, type: 3}
+    volume: 0.35
+    pitchJitter: 0

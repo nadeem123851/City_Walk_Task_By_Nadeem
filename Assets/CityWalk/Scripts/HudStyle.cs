@@ -138,6 +138,7 @@ namespace CityWalk
             Label("Label", img.transform, text, 30, ButtonInk, TextAlignmentOptions.Center, true);
             var b = img.gameObject.AddComponent<Button>();
             b.targetGraphic = img;
+            b.onClick.AddListener(AudioHub.Click);
             return b;
         }
 
@@ -152,6 +153,7 @@ namespace CityWalk
             Label("Label", edge.transform, text, 30, Text, TextAlignmentOptions.Center, true);
             var b = edge.gameObject.AddComponent<Button>();
             b.targetGraphic = fill;
+            b.onClick.AddListener(AudioHub.Click);
             return b;
         }
 

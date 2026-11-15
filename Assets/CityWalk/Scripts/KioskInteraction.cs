@@ -74,6 +74,7 @@ namespace CityWalk
 
             var btn = rim.gameObject.AddComponent<Button>();
             btn.targetGraphic = face;
+            btn.onClick.AddListener(AudioHub.Click);
             btn.onClick.AddListener(Tap);
             return rim.rectTransform;
         }

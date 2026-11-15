@@ -145,6 +145,7 @@ namespace CityWalk
             animator.runtimeAnimatorController = set.walkController;
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.CullCompletely;
+            go.AddComponent<FootstepEvents>();   // the walk clip has footstep events; pedestrians stay silent
             animator.speed = w.speed / Mathf.Max(0.1f, set.clipWalkSpeed);
             if (set.walkController != null)
                 animator.Play(0, 0, Mathf.Repeat(index * 0.37f, 1f));   // out of step with each other

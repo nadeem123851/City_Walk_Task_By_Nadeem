@@ -22,11 +22,13 @@ namespace CityWalk
             Time.timeScale = 1f;
             Screen.orientation = ScreenOrientation.AutoRotation;
 
-            // A camera so the screen is cleared even before the UI draws.
-            var cam = new GameObject("Main Camera", typeof(Camera)).GetComponent<Camera>();
+            // A camera so the screen is cleared even before the UI draws, with the audio listener for the ambience and clicks.
+            var cam = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener)).GetComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = HudStyle.Hex(0x092E26);
             cam.cullingMask = 0;
+
+            _ = AudioHub.Instance;   // starts the city ambience, which carries on into the game
 
             var canvas = HudStyle.CreateCanvas("HomeCanvas", 0, out var safe);
             Build(canvas.transform, safe);

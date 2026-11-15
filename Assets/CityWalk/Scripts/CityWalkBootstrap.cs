@@ -67,6 +67,7 @@ namespace CityWalk
             KioskInteraction.Create(route, playerGo.transform, hud.Root);
             GuidanceChevrons.Create(route, playerGo.transform);
             PedestrianManager.Create(route, camGo.transform);
+            AudioHub.Instance?.Bind(route);
         }
 
         // Haze colour from the web preview; also the camera background if the sky material is missing.

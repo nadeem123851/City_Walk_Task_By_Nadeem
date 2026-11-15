@@ -85,7 +85,9 @@ namespace CityWalk
             pauseBg.type = Image.Type.Simple;
             HudStyle.Icon("Disc", pauseBg.transform, circle, new Vector2(0.5f, 0.5f), Vector2.zero, 84f, HudStyle.Panel);
             HudStyle.Icon("Icon", pauseBg.transform, art.iconPause, new Vector2(0.5f, 0.5f), Vector2.zero, 40f, HudStyle.Text);
-            pauseBg.gameObject.AddComponent<Button>().onClick.AddListener(() => pausePanel.Show());
+            var pauseButton = pauseBg.gameObject.AddComponent<Button>();
+            pauseButton.onClick.AddListener(AudioHub.Click);
+            pauseButton.onClick.AddListener(() => pausePanel.Show());
 
             Joystick = VirtualJoystick.Create(root);
 

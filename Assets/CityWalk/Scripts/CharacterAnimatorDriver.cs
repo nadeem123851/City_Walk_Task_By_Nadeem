@@ -66,11 +66,24 @@ namespace CityWalk
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
+            // Footsteps: animation events on the walk and run clips, quieter when walking than when brisk.
+            model.AddComponent<FootstepEvents>().Stepped += OnFootstep;
+
             if (setup.briefcase)
             {
                 var hand = FindChild(model.transform, "Wrist.L");
                 if (hand != null) AddBriefcase(hand);
             }
+        }
+
+        float lastStep = -1f;
+
+        void OnFootstep()
+        {
+            if (Time.time - lastStep < 0.18f || mover == null) return;
+            lastStep = Time.time;
+            var hub = AudioHub.Instance;
+            if (hub != null) hub.Footstep(Mathf.Clamp(mover.CurrentSpeed / Mathf.Max(0.1f, mover.runSpeed), 0.45f, 1f));
         }
 
         void Update()
