@@ -66,9 +66,9 @@ desktop.ini
 # Character pack files not used by the game (kept locally only)
 /Assets/Ultimate Modular Men- Feb 2022/
 /Assets/Ultimate Modular Men- Feb 2022.meta
-/Assets/Models/King/
-/Assets/Models/King.meta
-/Assets/Models/Swat/
-/Assets/Models/Swat.meta
-/Assets/Models/Astronaut/
-/Assets/Models/Astronaut.meta
+/Assets/Character_Models/King/
+/Assets/Character_Models/King.meta
+/Assets/Character_Models/Swat/
+/Assets/Character_Models/Swat.meta
+/Assets/Character_Models/Astronaut/
+/Assets/Character_Models/Astronaut.meta
