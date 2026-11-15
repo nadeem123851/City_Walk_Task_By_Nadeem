@@ -15,6 +15,7 @@ namespace CityWalk
         const string BaseLitPath = "CityWalk_BaseLit";
         const string BaseLitEmissivePath = "CityWalk_BaseLitEmissive";
         const string BaseUnlitPath = "CityWalk_BaseUnlit";
+        const string UnlitTransparentPath = "CityWalk_UnlitTransparent";
 
         static Material baseMaterial;
         static Material emissiveBaseMaterial;
@@ -108,6 +109,27 @@ namespace CityWalk
                 if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", texture);
                 if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", texture);
             }
+            cache[key] = mat;
+            return mat;
+        }
+
+        /// <summary>
+        /// A flat-colour unlit material drawn from both sides, for guidance visuals.
+        /// Transparent ones blend by the colour's alpha and don't write depth.
+        /// </summary>
+        public static Material GetUnlitColor(Color color, bool transparent)
+        {
+            string key = (transparent ? "unlitT_" : "unlitO_") + ColorUtility.ToHtmlStringRGBA(color);
+            if (cache.TryGetValue(key, out var existing) && existing != null)
+                return existing;
+
+            var source = Resources.Load<Material>(transparent ? UnlitTransparentPath : BaseUnlitPath);
+            Material mat = source != null ? new Material(source) : new Material(BaseMaterial);
+            mat.name = "CityWalk_" + key;
+            if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", null);
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+            if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
+            if (mat.HasProperty("_Cull")) mat.SetFloat("_Cull", 0f);   // both sides
             cache[key] = mat;
             return mat;
         }

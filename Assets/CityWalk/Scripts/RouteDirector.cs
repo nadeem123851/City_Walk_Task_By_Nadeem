@@ -63,15 +63,19 @@ namespace CityWalk
         readonly WrongWayDetector wrongWay = new WrongWayDetector();
         float lapStartTime;
         float graceUntil;
-        RouteMarker kioskMarkerView, officeMarkerView;
+        DestinationMarker kioskMarkerView, officeMarkerView;
+
+        /// <summary>Where the route starts and each lap ends (the lap line).</summary>
+        public Vector3 StartPosition { get; private set; }
 
         public void Begin(PlayerMover playerMover)
         {
             player = playerMover;
-            laps = new LapTracker(Flat(parkCentre), Flat(player.transform.position), totalLaps);
+            StartPosition = player.transform.position;
+            laps = new LapTracker(Flat(parkCentre), Flat(StartPosition), totalLaps);
 
-            kioskMarkerView = RouteMarker.Create(transform, "Marker_Kiosk", kioskMarker, arriveRadius);
-            officeMarkerView = RouteMarker.Create(transform, "Marker_Office", officeMarker, arriveRadius);
+            kioskMarkerView = DestinationMarker.Create(transform, "Marker_Kiosk", kioskMarker);
+            officeMarkerView = DestinationMarker.Create(transform, "Marker_Office", officeMarker);
             SetPhase(RoutePhase.Laps);
         }
 
