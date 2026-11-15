@@ -1,0 +1,191 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91a33ad613bb0ec4883123bb0c27a985, type: 3}
+  m_Name: PedestrianSet
+  m_EditorClassIdentifier: Assembly-CSharp::CityWalk.PedestrianSet
+  characters:
+  - {fileID: 919132149155446097, guid: e9ee95b700d45ca49a79362e84d7e505, type: 3}
+  - {fileID: 919132149155446097, guid: f9d2cd11c11f1694789d6cddc218c6e9, type: 3}
+  - {fileID: 919132149155446097, guid: 2f2eea67e1449be47a1b150d578812e7, type: 3}
+  - {fileID: 919132149155446097, guid: fb5b0f0b39839964680566aac407c644, type: 3}
+  - {fileID: 919132149155446097, guid: 18d5d769afd4a4d4f83842119cc3f8f8, type: 3}
+  - {fileID: 919132149155446097, guid: 56a0727c3d11df0419d963ce245c0af5, type: 3}
+  - {fileID: 919132149155446097, guid: 045bb64314e83b84585b9d9d41ccae1d, type: 3}
+  - {fileID: 919132149155446097, guid: a761b15d7a33ce04798dca18dd2acc9d, type: 3}
+  walkController: {fileID: 9100000, guid: b08869da726707a4dad66f7b72c21d0e, type: 2}
+  clipWalkSpeed: 1.38
+  normalPace: 0.72
+  shadowDistance: 26
+  routes:
+  - name: Park pavement
+    corners:
+    - {x: -10.85, y: -10.85}
+    - {x: 10.85, y: -10.85}
+    - {x: 10.85, y: 10.85}
+    - {x: -10.85, y: 10.85}
+  - name: South strip (kiosk side)
+    corners:
+    - {x: -10.5, y: -22.6}
+    - {x: 10.5, y: -22.6}
+    - {x: 10.5, y: -23.6}
+    - {x: -10.5, y: -23.6}
+  - name: North strip (bank side)
+    corners:
+    - {x: -10.5, y: 22.6}
+    - {x: 10.5, y: 22.6}
+    - {x: 10.5, y: 23.6}
+    - {x: -10.5, y: 23.6}
+  - name: West strip (cafe side)
+    corners:
+    - {x: -22.6, y: -10.5}
+    - {x: -22.6, y: 10.5}
+    - {x: -23.6, y: 10.5}
+    - {x: -23.6, y: -10.5}
+  - name: Kiosk block
+    corners:
+    - {x: 23.3, y: -44.7}
+    - {x: 44.7, y: -44.7}
+    - {x: 44.7, y: -23.3}
+    - {x: 23.3, y: -23.3}
+  - name: South-west block
+    corners:
+    - {x: -44.7, y: -44.7}
+    - {x: -23.3, y: -44.7}
+    - {x: -23.3, y: -23.3}
+    - {x: -44.7, y: -23.3}
+  - name: North-east block
+    corners:
+    - {x: 23.3, y: 23.3}
+    - {x: 44.7, y: 23.3}
+    - {x: 44.7, y: 44.7}
+    - {x: 23.3, y: 44.7}
+  walkers:
+  - route: 0
+    character: 0
+    startOffset: 0
+    speed: 1.45
+    reverse: 0
+    scale: 0.95
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
+  - route: 0
+    character: 1
+    startOffset: 0.27
+    speed: 1.3
+    reverse: 1
+    scale: 1.02
+    jacket: {r: 0.18431373, g: 0.30980393, b: 0.47843137, a: 1}
+    rushHourOnly: 0
+  - route: 0
+    character: 2
+    startOffset: 0.55
+    speed: 1.55
+    reverse: 0
+    scale: 0.99
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
+  - route: 0
+    character: 3
+    startOffset: 0.8
+    speed: 1.25
+    reverse: 1
+    scale: 0.96
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 1
+  - route: 1
+    character: 4
+    startOffset: 0.1
+    speed: 1.5
+    reverse: 0
+    scale: 1.03
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
+  - route: 1
+    character: 1
+    startOffset: 0.6
+    speed: 1.35
+    reverse: 0
+    scale: 1
+    jacket: {r: 0.47843137, g: 0.18431373, b: 0.22745098, a: 1}
+    rushHourOnly: 0
+  - route: 1
+    character: 7
+    startOffset: 0.35
+    speed: 1.4
+    reverse: 0
+    scale: 0.96999997
+    jacket: {r: 0.18431373, g: 0.41960785, b: 0.2901961, a: 1}
+    rushHourOnly: 1
+  - route: 2
+    character: 0
+    startOffset: 0.2
+    speed: 1.4
+    reverse: 0
+    scale: 1.04
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
+  - route: 2
+    character: 6
+    startOffset: 0.7
+    speed: 1.3
+    reverse: 0
+    scale: 1.01
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 1
+  - route: 3
+    character: 2
+    startOffset: 0.15
+    speed: 1.45
+    reverse: 0
+    scale: 0.97999996
+    jacket: {r: 0.6039216, g: 0.41568628, b: 0.22745098, a: 1}
+    rushHourOnly: 0
+  - route: 3
+    character: 5
+    startOffset: 0.65
+    speed: 1.35
+    reverse: 0
+    scale: 0.95
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 1
+  - route: 4
+    character: 7
+    startOffset: 0.4
+    speed: 1.4
+    reverse: 0
+    scale: 1.02
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
+  - route: 4
+    character: 1
+    startOffset: 0.9
+    speed: 1.6
+    reverse: 1
+    scale: 0.99
+    jacket: {r: 0.2901961, g: 0.22745098, b: 0.41960785, a: 1}
+    rushHourOnly: 1
+  - route: 5
+    character: 3
+    startOffset: 0.5
+    speed: 1.3
+    reverse: 0
+    scale: 0.96
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
+  - route: 6
+    character: 5
+    startOffset: 0.25
+    speed: 1.5
+    reverse: 1
+    scale: 1.03
+    jacket: {r: 0, g: 0, b: 0, a: 0}
+    rushHourOnly: 0
