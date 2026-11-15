@@ -4,7 +4,7 @@ namespace CityWalk
 {
     /// <summary>
     /// Builds the city: a grid of blocks with windowed buildings, asphalt roads,
-    /// raised pavements and a park in the middle.
+    /// raised pavements, a park in the middle and the landmarks on the route.
     /// </summary>
     public class CityBuilder : MonoBehaviour
     {
@@ -64,6 +64,7 @@ namespace CityWalk
                 }
             }
 
+            CityLandmarks.Build(transform);
         }
 
         public Vector3 BlockCentre(int x, int z)
@@ -85,6 +86,9 @@ namespace CityWalk
                     float d = cell - 1.2f - (float)rng.NextDouble() * 2f;
                     float h = 8f + (float)rng.NextDouble() * 34f;
                     var color = BuildingColors[rng.Next(BuildingColors.Length)];
+                    if (!CityLandmarks.ShapeLot(bx, bz, i, j, ref w, ref d, ref h, ref color))
+                        continue;
+
                     var pos = new Vector3(-blockSize * 0.5f + inset + cell * (i + 0.5f), 0.15f + h * 0.5f,
                                           -blockSize * 0.5f + inset + cell * (j + 0.5f));
 
