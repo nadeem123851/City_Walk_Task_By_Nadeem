@@ -92,6 +92,46 @@ namespace CityWalk
             return mat;
         }
 
+        /// <summary>As <see cref="GetTextured(Color, Texture)"/>, with the texture repeated <paramref name="tiling"/> times.</summary>
+        public static Material GetTextured(Color color, Texture texture, Vector2 tiling)
+        {
+            if (texture == null) return Get(color);
+            string key = $"tex_{texture.name}_{ColorUtility.ToHtmlStringRGBA(color)}_{tiling.x:0.##}x{tiling.y:0.##}";
+            if (cache.TryGetValue(key, out var existing) && existing != null)
+                return existing;
+
+            var mat = new Material(GetTextured(color, texture)) { name = "CityWalk_" + key };
+            if (mat.HasProperty("_BaseMap")) mat.SetTextureScale("_BaseMap", tiling);
+            if (mat.HasProperty("_MainTex")) mat.SetTextureScale("_MainTex", tiling);
+            cache[key] = mat;
+            return mat;
+        }
+
+        /// <summary>An unlit, alpha-blended textured material drawn from both sides, for soft ground shading.</summary>
+        public static Material GetUnlitTransparentTextured(Texture texture, Color tint)
+        {
+            string key = "unlitTT_" + (texture != null ? texture.name : "none") + "_" + ColorUtility.ToHtmlStringRGBA(tint);
+            if (cache.TryGetValue(key, out var existing) && existing != null)
+                return existing;
+
+            var mat = new Material(GetUnlitColor(tint, true)) { name = "CityWalk_" + key };
+            if (texture != null)
+            {
+                if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", texture);
+                if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", texture);
+            }
+            cache[key] = mat;
+            return mat;
+        }
+
+        /// <summary>Turns off shadow casting on a primitive (flat ground pieces cast nothing useful).</summary>
+        public static GameObject NoShadow(this GameObject go)
+        {
+            var r = go.GetComponent<Renderer>();
+            if (r != null) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            return go;
+        }
+
         /// <summary>An unlit textured material, for signs that should read clearly in shade.</summary>
         public static Material GetUnlit(Texture texture)
         {

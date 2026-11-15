@@ -39,6 +39,7 @@ namespace CityWalk
 
             var model = Instantiate(option.model, player, false);
             model.name = "Character";
+            BlobShadow.Attach(model.transform);
             var driver = model.AddComponent<CharacterAnimatorDriver>();
             driver.mover = mover;
             driver.setup = setup;

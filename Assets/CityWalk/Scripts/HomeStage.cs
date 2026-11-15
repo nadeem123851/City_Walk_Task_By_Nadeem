@@ -60,6 +60,7 @@ namespace CityWalk
             cam.clearFlags = RenderSettings.skybox != null ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
             cam.fieldOfView = 55f;
             cam.nearClipPlane = 0.1f;
+            CityLook.ApplyPost(cam);
             cam.farClipPlane = 400f;
 
             startTime = Time.time;

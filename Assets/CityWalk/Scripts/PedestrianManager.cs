@@ -105,6 +105,7 @@ namespace CityWalk
                 var go = Instantiate(prefab, transform);
                 go.name = $"Pedestrian_{i:00}_{prefab.name}";
                 go.transform.localScale = Vector3.one * Mathf.Max(0.1f, entry.scale);
+                BlobShadow.Attach(go.transform);
 
                 var w = new Walker
                 {

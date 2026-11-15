@@ -16,8 +16,8 @@ namespace CityWalk
         static readonly Color BankBlue = Hex(0x2b3a55);
         static readonly Color CafeRed = Hex(0xb5443a);
         static readonly Color Metal = Hex(0x2a2b30);
-        static readonly Color OfficeWall = Hex(0x3f7a66);
-        static readonly Color BankWall = Hex(0xe9e3d3);
+        internal static readonly Color OfficeWall = Hex(0x3f7a66);
+        internal static readonly Color BankWall = Hex(0xe9e3d3);
 
         public static readonly Vector3 KioskPosition = new Vector3(27.6f, 0f, -27.2f);
         public static readonly Vector3 OfficeSignPosition = new Vector3(58.4f, 0f, -10.4f);

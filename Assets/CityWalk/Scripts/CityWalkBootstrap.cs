@@ -45,6 +45,7 @@ namespace CityWalk
             cam.fieldOfView = 55f;
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 400f;
+            CityLook.ApplyPost(cam);
             var follow = camGo.AddComponent<FollowCamera>();
             follow.target = playerGo.transform;
             follow.player = mover;
@@ -80,7 +81,8 @@ namespace CityWalk
         }
 
         // Haze colour from the web preview; also the camera background if the sky material is missing.
-        public static readonly Color FogColor = new Color(0.725f, 0.827f, 0.925f);
+        /// <summary>Fog and clear colour: the warm cream of the sky's horizon.</summary>
+        public static readonly Color FogColor = CityTextures.Hex(0xE6DFD0);
 
         /// <summary>Morning sun, sky, ambient light and fog. Shared with the 3D home screen.</summary>
         public static void SetupLighting()
@@ -88,28 +90,39 @@ namespace CityWalk
             // Warm morning sun. Direction is the web preview's SUN_DIR with z mirrored for Unity.
             var sun = new GameObject("Sun").AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.intensity = 1.35f;
-            sun.color = new Color(1f, 0.93f, 0.82f);
+            sun.intensity = 1.4f;
+            sun.color = CityTextures.Hex(0xFFE7C2);
             sun.shadows = LightShadows.Soft;
-            sun.shadowStrength = 0.75f;
+            sun.shadowStrength = 0.85f;
             sun.transform.rotation = Quaternion.LookRotation(new Vector3(0.42f, -0.80f, 0.43f));
             RenderSettings.sun = sun;
+            var lightData = UnityEngine.Rendering.Universal.LightExtensions.GetUniversalAdditionalLightData(sun);
+            if (lightData != null) lightData.softShadowQuality = UnityEngine.Rendering.Universal.SoftShadowQuality.Low;
 
             // Cool sky light from above, warm bounce from the street below.
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.72f, 0.79f, 0.88f);
-            RenderSettings.ambientEquatorColor = new Color(0.58f, 0.60f, 0.62f);
-            RenderSettings.ambientGroundColor = new Color(0.38f, 0.35f, 0.31f);
+            RenderSettings.ambientSkyColor = CityTextures.Hex(0x9DBBEA);
+            RenderSettings.ambientEquatorColor = CityTextures.Hex(0xAAB6C9);
+            RenderSettings.ambientGroundColor = CityTextures.Hex(0x8A7A68);
 
-            // Gradient sky (Skybox/Panoramic with the pack's sky_gradient texture).
-            var sky = CityArt.Instance.sky;
-            if (sky != null) RenderSettings.skybox = sky;
+            // Generated panorama sky with clouds, on a copy of the pack's Skybox/Panoramic material
+            // (never edit the loaded asset: in the editor that change would be saved into the project).
+            var skyAsset = CityArt.Instance.sky;
+            if (skyAsset != null)
+            {
+                var sky = new Material(skyAsset) { name = "CityWalk_Sky" };
+                sky.SetTexture("_MainTex", CityTextures.SkyPanorama(-sun.transform.forward));
+                if (sky.HasProperty("_Rotation")) sky.SetFloat("_Rotation", 0f);
+                RenderSettings.skybox = sky;
+            }
 
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = FogColor;
-            RenderSettings.fogStartDistance = 70f;
-            RenderSettings.fogEndDistance = 230f;
+            RenderSettings.fogStartDistance = 45f;
+            RenderSettings.fogEndDistance = 250f;
+
+            CityLook.BuildGradeVolume();
         }
     }
 }
