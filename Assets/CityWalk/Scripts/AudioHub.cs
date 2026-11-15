@@ -70,6 +70,8 @@ namespace CityWalk
             route.WrongWayChanged += wrong => { if (wrong) Play(sounds.wrongWay); };
             route.RouteCompleted += () => Play(sounds.finish);
             route.CoinCollected += total => Play(sounds.coin);
+            route.PaceNudged += () => Play(sounds.nudge);
+            route.BriskBonus += () => Play(sounds.bonus);
         }
 
         /// <summary>Button tap.</summary>

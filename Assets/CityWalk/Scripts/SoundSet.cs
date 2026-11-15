@@ -30,6 +30,10 @@ namespace CityWalk
         public Sound wrongWay = new Sound { volume = 0.7f };
         public Sound finish = new Sound { volume = 0.9f };
         public Sound coin = new Sound { volume = 0.6f, pitchJitter = 0.05f };
+        [Tooltip("Rush hour pace nudge: \"Pick up the pace\".")]
+        public Sound nudge = new Sound { volume = 0.6f };
+        [Tooltip("Bonus XP for keeping a brisk pace.")]
+        public Sound bonus = new Sound { volume = 0.55f };
 
         [Header("Interface")]
         public Sound click = new Sound { volume = 0.6f };

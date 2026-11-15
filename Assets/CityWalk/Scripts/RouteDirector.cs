@@ -29,6 +29,8 @@ namespace CityWalk
         public int lapXp = 20;
         public int coffeeXp = 50;
         public int arrivalXp = 40;
+        [Tooltip("Every few seconds of brisk walking in rush hour.")]
+        public int briskXp = 5;
 
         public RoutePhase Phase { get; private set; } = RoutePhase.Laps;
         public int CurrentLap => laps != null ? laps.CurrentLap : 1;
@@ -44,6 +46,14 @@ namespace CityWalk
         /// <summary>Laps 1 and 2: the player is asked to walk briskly.</summary>
         public bool IsRushHour => Phase == RoutePhase.Laps && CurrentLap <= rushHourLaps;
         public int Xp { get; private set; }
+        /// <summary>Rush hour and too slow for 2 s: the pace pill says "Pick up the pace".</summary>
+        public bool IsPaceNudge => pace.IsNudging;
+        /// <summary>The player's ground speed, for the pace bar.</summary>
+        public float PlayerSpeed => player != null ? player.CurrentSpeed : 0f;
+        /// <summary>The brisk walking speed, a full pace bar.</summary>
+        public float FullPace => player != null ? player.runSpeed : 5.5f;
+        /// <summary>At or above this speed the pace bar is green.</summary>
+        public float BriskPace => pace.BriskSpeed;
         /// <summary>Coins picked up on the route.</summary>
         public int Coins { get; private set; }
         public float ElapsedTime { get; private set; }
@@ -70,11 +80,16 @@ namespace CityWalk
         public event Action<RoutePhase> PhaseChanged;
         /// <summary>Amount and reason, for example (20, "Lap bonus").</summary>
         public event Action<int, string> XpGained;
+        /// <summary>Rush hour and too slow: the pace nudge has just come on.</summary>
+        public event Action PaceNudged;
+        /// <summary>Brisk walking earned its bonus XP.</summary>
+        public event Action BriskBonus;
         public event Action RouteCompleted;
 
         PlayerMover player;
         LapTracker laps;
         readonly WrongWayDetector wrongWay = new WrongWayDetector();
+        readonly PaceMeter pace = new PaceMeter();
         float lapStartTime;
         float graceUntil;
         DestinationMarker kioskMarkerView, officeMarkerView;
@@ -161,6 +176,17 @@ namespace CityWalk
                 ? wrongWay.Suppress()
                 : wrongWay.Step(along, dt);
             if (changed) WrongWayChanged?.Invoke(wrongWay.IsWrongWay);
+
+            // Pace meter: only in rush hour, and not while a warning already has the player's attention.
+            bool paceActive = IsRushHour && !wrongWay.IsWrongWay && !IsCoffeeMissed;
+            switch (pace.Step(player.CurrentSpeed, dt, paceActive))
+            {
+                case PaceStepResult.Nudged: PaceNudged?.Invoke(); break;
+                case PaceStepResult.BriskBonus:
+                    AddXp(briskXp, "Brisk bonus");
+                    BriskBonus?.Invoke();
+                    break;
+            }
         }
 
         void OnLapCompleted()
@@ -178,6 +204,7 @@ namespace CityWalk
         void Arrive()
         {
             if (wrongWay.Suppress()) WrongWayChanged?.Invoke(false);
+            pace.Reset();
             AddXp(arrivalXp, "Arrived");
             player.MovementLocked = true;
             SetPhase(RoutePhase.Complete);

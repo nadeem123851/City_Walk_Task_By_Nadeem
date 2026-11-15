@@ -40,6 +40,14 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 868e916e6240a624a8924d828325e4c4, type: 3}
     volume: 0.6
     pitchJitter: 0.05
+  nudge:
+    clip: {fileID: 8300000, guid: a8ad19fb8bc3bda4880233e220dc1aa1, type: 3}
+    volume: 0.6
+    pitchJitter: 0
+  bonus:
+    clip: {fileID: 8300000, guid: d133597bb5a024847bcc2469e150e32d, type: 3}
+    volume: 0.55
+    pitchJitter: 0
   click:
     clip: {fileID: 8300000, guid: 142e74f2d0e79a54787024520f070984, type: 3}
     volume: 0.6

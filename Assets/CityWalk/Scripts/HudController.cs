@@ -13,15 +13,29 @@ namespace CityWalk
     {
         static readonly Vector2 TopLeft = new Vector2(0f, 1f);
         static readonly Vector2 TopRight = new Vector2(1f, 1f);
+        static readonly Vector2 Left = new Vector2(0f, 0.5f);
+
+        // Pace pill, as in the web preview: green bar when brisk, orange bar and an orange pill when nudged.
+        static readonly Color PaceBrisk = HudStyle.Hex(0x7FE0A0);
+        static readonly Color PaceSlow = HudStyle.Hex(0xFFB347);
+        static readonly Color PaceSlowPanel = new Color(92f / 255f, 54f / 255f, 8f / 255f, 0.94f);
+        static readonly Color PaceTrack = new Color(1f, 1f, 1f, 0.16f);
+        const float PaceTextLeft = 60f, PaceBarGap = 18f, PaceBarWidth = 120f, PaceRight = 28f;
+
+        // XP float under the coin counter, for every XP gain ("Lap bonus +20 XP", "Brisk bonus +5 XP").
+        const float XpFloatSeconds = 1.3f;
+        static readonly Vector2 XpFloatPos = new Vector2(-152f, -206f);
+        static readonly Color XpFloatColor = HudStyle.Hex(0xF3D27A);
 
         public VirtualJoystick Joystick { get; private set; }
         /// <summary>Safe-area root that other HUD pieces (like the coffee button) should parent to.</summary>
         public RectTransform Root { get; private set; }
 
         RouteDirector route;
-        TextMeshProUGUI lapValue, bannerTitle, bannerBody, pillText, xpText, coinText;
-        Image bannerFill, bannerBorder, bannerEdge, lapBorder;
-        RectTransform lapCard, coinCard;
+        TextMeshProUGUI lapValue, bannerTitle, bannerBody, pillText, xpText, coinText, xpFloat;
+        Image bannerFill, bannerBorder, bannerEdge, lapBorder, pillFill, pillBorder, paceFill;
+        RectTransform lapCard, coinCard, pillRect, paceTrack;
+        float xpFloatAt = -10f, paceTextWidth;
         GameObject pill;
         PausePanel pausePanel;
         RouteCompletePanel completePanel;
@@ -66,10 +80,20 @@ namespace CityWalk
             bannerBody = HudStyle.Label("Body", bannerFill.transform, "", 22, HudStyle.Text, TextAlignmentOptions.BottomLeft).Inset(34f, 18f, 20f, 58f);
 
             // Pace pill
-            var pillCard = HudStyle.Card("PacePill", root, TopLeft, TopLeft, new Vector2(592f, -160f), new Vector2(462f, 52f));
-            HudStyle.Icon("Walker", pillCard.transform, art.iconWalker, new Vector2(0f, 0.5f), new Vector2(34f, 0f), 32f, HudStyle.Gold);
-            pillText = HudStyle.Label("Text", pillCard.transform, "", 22, HudStyle.Text, TextAlignmentOptions.Left).Inset(60f, 0f, 16f, 0f);
-            pill = pillCard.gameObject;
+            pillFill = HudStyle.Card("PacePill", root, TopLeft, TopLeft, new Vector2(592f, -160f), new Vector2(462f, 52f),
+                HudStyle.Panel, HudStyle.GoldEdge, out pillBorder);
+            pillRect = pillFill.rectTransform;
+            HudStyle.Icon("Walker", pillFill.transform, art.iconWalker, Left, new Vector2(34f, 0f), 32f, HudStyle.Gold);
+            pillText = HudStyle.Label("Text", pillFill.transform, "", 22, HudStyle.Text, TextAlignmentOptions.Left).Inset(PaceTextLeft, 0f, 16f, 0f);
+            pill = pillFill.gameObject;
+            // Pace bar: how fast the player is going, full at a brisk walk.
+            var track = UiFactory.Panel("PaceBar", pillFill.transform, Left, Left, Vector2.zero, new Vector2(PaceBarWidth, 12f), PaceTrack);
+            track.pixelsPerUnitMultiplier = 3f;   // 6 px corners on a 12 px bar
+            track.raycastTarget = false;
+            paceTrack = track.rectTransform;
+            paceFill = UiFactory.Panel("Fill", paceTrack, Left, Left, Vector2.zero, new Vector2(0f, 12f), PaceBrisk);
+            paceFill.pixelsPerUnitMultiplier = 3f;
+            paceFill.raycastTarget = false;
 
             // XP
             var xp = HudStyle.Card("XpCard", root, TopRight, TopRight, new Vector2(-152f, -42f), new Vector2(218f, 80f));
@@ -83,6 +107,18 @@ namespace CityWalk
             HudStyle.Icon("Coin", coins.transform, disc, new Vector2(0f, 0.5f), new Vector2(56f, 0f), 34f, HudStyle.Gold);
             HudStyle.Icon("CoinInner", coins.transform, disc, new Vector2(0f, 0.5f), new Vector2(56f, 0f), 22f, HudStyle.Hex(0xC9962E));
             coinText = HudStyle.Label("Value", coins.transform, "0", 28, HudStyle.Text, TextAlignmentOptions.Left).Inset(82f, 0f, 12f, 0f);
+
+            // XP float, right-aligned under the coin card
+            var floatRect = UiFactory.MakeRect("XpFloat", root, TopRight, TopRight, XpFloatPos, new Vector2(422f, 44f));
+            xpFloat = floatRect.gameObject.AddComponent<TextMeshProUGUI>();
+            xpFloat.fontSize = 30;
+            xpFloat.fontStyle = FontStyles.Bold;
+            xpFloat.characterSpacing = -3f;
+            xpFloat.color = XpFloatColor;
+            xpFloat.alignment = TextAlignmentOptions.Right;
+            xpFloat.textWrappingMode = TextWrappingModes.NoWrap;
+            xpFloat.raycastTarget = false;
+            floatRect.gameObject.SetActive(false);
 
             // Pause button
             var circle = art.circle != null ? art.circle : UiFactory.Circle;
@@ -107,6 +143,12 @@ namespace CityWalk
             route = director;
             route.LapCompleted += (lap, seconds) => lapPulseAt = Time.time;   // the lap card itself is LapCelebration
             route.CoinCollected += total => coinPulseAt = Time.time;
+            route.XpGained += (amount, reason) =>
+            {
+                xpFloat.text = string.IsNullOrEmpty(reason) ? $"+{amount} XP" : $"{reason} +{amount} XP";
+                xpFloatAt = Time.time;
+                xpFloat.gameObject.SetActive(true);
+            };
             route.RouteCompleted += () =>
             {
                 Joystick.gameObject.SetActive(false);
@@ -150,9 +192,53 @@ namespace CityWalk
             bannerBorder.color = warn ? HudStyle.Warning : HudStyle.GoldEdge;
             bannerEdge.color = warn ? HudStyle.Warning : HudStyle.Gold;
 
+            RefreshPace();
+            RefreshXpFloat();
+        }
+
+        void RefreshPace()
+        {
             string pace = PaceHint.TextFor(route);
             if (pill.activeSelf != (pace != null)) pill.SetActive(pace != null);
-            if (pace != null) pillText.text = pace;
+            if (pace == null) return;
+
+            bool rush = route.IsRushHour, slow = route.IsPaceNudge;
+            if (pillText.text != pace)
+            {
+                pillText.text = pace;
+                paceTextWidth = pillText.GetPreferredValues(pace).x;
+            }
+            pillFill.color = slow ? PaceSlowPanel : HudStyle.Panel;
+            pillBorder.color = slow ? PaceSlow : HudStyle.GoldEdge;
+
+            // The pill fits its text, plus the bar in rush hour.
+            float textWidth = paceTextWidth;
+            float width = PaceTextLeft + textWidth + (rush ? PaceBarGap + PaceBarWidth : 0f) + PaceRight;
+            pillRect.sizeDelta = new Vector2(width, pillRect.sizeDelta.y);
+
+            if (paceTrack.gameObject.activeSelf != rush) paceTrack.gameObject.SetActive(rush);
+            if (!rush) return;
+            paceTrack.anchoredPosition = new Vector2(PaceTextLeft + textWidth + PaceBarGap, 0f);
+            float speed = route.PlayerSpeed;
+            float fill = Mathf.Clamp01(speed / route.FullPace) * PaceBarWidth;
+            paceFill.rectTransform.sizeDelta = new Vector2(fill, 12f);
+            paceFill.enabled = fill >= 1f;
+            paceFill.color = speed >= route.BriskPace ? PaceBrisk : PaceSlow;
+        }
+
+        void RefreshXpFloat()
+        {
+            if (!xpFloat.gameObject.activeSelf) return;
+            float a = (Time.time - xpFloatAt) / XpFloatSeconds;
+            if (a >= 1f)
+            {
+                xpFloat.gameObject.SetActive(false);
+                return;
+            }
+            xpFloat.rectTransform.anchoredPosition = XpFloatPos + new Vector2(0f, a * 24f);
+            var c = XpFloatColor;
+            c.a = 1f - Mathf.SmoothStep(0f, 1f, (a - 0.65f) / 0.35f);
+            xpFloat.color = c;
         }
     }
 }
