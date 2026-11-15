@@ -14,6 +14,7 @@ namespace CityWalk
     {
         const string BaseLitPath = "CityWalk_BaseLit";
         const string BaseLitEmissivePath = "CityWalk_BaseLitEmissive";
+        const string BaseUnlitPath = "CityWalk_BaseUnlit";
 
         static Material baseMaterial;
         static Material emissiveBaseMaterial;
@@ -74,16 +75,60 @@ namespace CityWalk
             return mat;
         }
 
+        /// <summary>A lit material tinted by color with a texture, for example building windows.</summary>
+        public static Material GetTextured(Color color, Texture texture)
+        {
+            if (texture == null) return Get(color);
+            string key = "tex_" + texture.name + "_" + ColorUtility.ToHtmlStringRGBA(color);
+            if (cache.TryGetValue(key, out var existing) && existing != null)
+                return existing;
+
+            var mat = Get(color);
+            mat = new Material(mat) { name = "CityWalk_" + key };
+            if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", texture);
+            if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", texture);
+            cache[key] = mat;
+            return mat;
+        }
+
+        /// <summary>An unlit textured material, for signs that should read clearly in shade.</summary>
+        public static Material GetUnlit(Texture texture)
+        {
+            string key = "unlit_" + (texture != null ? texture.name : "none");
+            if (cache.TryGetValue(key, out var existing) && existing != null)
+                return existing;
+
+            var source = Resources.Load<Material>(BaseUnlitPath);
+            Material mat = source != null ? new Material(source) : new Material(BaseMaterial);
+            mat.name = "CityWalk_" + key;
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+            if (mat.HasProperty("_Color")) mat.SetColor("_Color", Color.white);
+            if (texture != null)
+            {
+                if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", texture);
+                if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", texture);
+            }
+            cache[key] = mat;
+            return mat;
+        }
+
         /// <summary>Creates a coloured primitive. Colliders are removed unless keepCollider is true.</summary>
         public static GameObject Primitive(PrimitiveType type, string name, Transform parent,
             Vector3 localPosition, Vector3 localScale, Color color, bool keepCollider = false, float emission = 0f)
+        {
+            return Primitive(type, name, parent, localPosition, localScale, Get(color, emission), keepCollider);
+        }
+
+        /// <summary>Creates a primitive with the given material. Colliders are removed unless keepCollider is true.</summary>
+        public static GameObject Primitive(PrimitiveType type, string name, Transform parent,
+            Vector3 localPosition, Vector3 localScale, Material material, bool keepCollider = false)
         {
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
             go.transform.SetParent(parent, false);
             go.transform.localPosition = localPosition;
             go.transform.localScale = localScale;
-            go.GetComponent<Renderer>().sharedMaterial = Get(color, emission);
+            go.GetComponent<Renderer>().sharedMaterial = material;
             if (!keepCollider)
             {
                 var col = go.GetComponent<Collider>();

@@ -3,8 +3,8 @@ using UnityEngine;
 namespace CityWalk
 {
     /// <summary>
-    /// Builds a simple grey-box city: a grid of blocks with box buildings,
-    /// asphalt roads, raised pavements and a park in the middle.
+    /// Builds the city: a grid of blocks with windowed buildings, asphalt roads,
+    /// raised pavements and a park in the middle.
     /// </summary>
     public class CityBuilder : MonoBehaviour
     {
@@ -15,20 +15,21 @@ namespace CityWalk
 
         public float Pitch => blockSize + roadWidth;
 
-        static readonly Color Asphalt = new Color(0.22f, 0.23f, 0.25f);
-        static readonly Color Pavement = new Color(0.62f, 0.62f, 0.60f);
-        static readonly Color Grass = new Color(0.33f, 0.52f, 0.30f);
-        static readonly Color LaneLine = new Color(0.92f, 0.90f, 0.82f);
+        // Colours from the web preview (WebSource/main.js)
+        static readonly Color Asphalt = Hex(0x3a3d43);
+        static readonly Color Pavement = Hex(0xa9a59a);
+        static readonly Color Grass = Hex(0x4f8a3f);
+        static readonly Color LaneLine = Hex(0xe6e1cf);
 
         static readonly Color[] BuildingColors =
         {
-            new Color(0.70f, 0.66f, 0.60f),
-            new Color(0.55f, 0.58f, 0.62f),
-            new Color(0.78f, 0.74f, 0.68f),
-            new Color(0.46f, 0.49f, 0.53f),
-            new Color(0.64f, 0.55f, 0.48f),
-            new Color(0.83f, 0.81f, 0.78f),
+            Hex(0xc9b79c), Hex(0x9aa3ad), Hex(0xd8c7a8), Hex(0x7f8892), Hex(0xb89678), Hex(0xddd6c8),
         };
+
+        static Color Hex(int rgb)
+        {
+            return new Color(((rgb >> 16) & 0xff) / 255f, ((rgb >> 8) & 0xff) / 255f, (rgb & 0xff) / 255f);
+        }
 
         public void Build()
         {
@@ -57,11 +58,12 @@ namespace CityWalk
                         new Vector3(0f, 0.075f, 0f), new Vector3(blockSize, 0.15f, blockSize), Pavement, true);
 
                     if (isPark) BuildPark(block);
-                    else BuildBuildings(block, rng);
+                    else BuildBuildings(block, rng, x, z);
 
                     BuildStreetLamps(block);
                 }
             }
+
         }
 
         public Vector3 BlockCentre(int x, int z)
@@ -70,10 +72,11 @@ namespace CityWalk
             return new Vector3((x - offset) * Pitch, 0f, (z - offset) * Pitch);
         }
 
-        void BuildBuildings(Transform block, System.Random rng)
+        void BuildBuildings(Transform block, System.Random rng, int bx, int bz)
         {
             float inset = 2.5f;
             float cell = (blockSize - inset * 2f) / 2f;
+            var windows = CityArt.Instance.windows;
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 2; j++)
@@ -81,16 +84,23 @@ namespace CityWalk
                     float w = cell - 1.2f - (float)rng.NextDouble() * 2f;
                     float d = cell - 1.2f - (float)rng.NextDouble() * 2f;
                     float h = 8f + (float)rng.NextDouble() * 34f;
+                    var color = BuildingColors[rng.Next(BuildingColors.Length)];
                     var pos = new Vector3(-blockSize * 0.5f + inset + cell * (i + 0.5f), 0.15f + h * 0.5f,
                                           -blockSize * 0.5f + inset + cell * (j + 0.5f));
-                    var color = BuildingColors[rng.Next(BuildingColors.Length)];
-                    var b = MaterialFactory.Primitive(PrimitiveType.Cube, "Building", block, pos,
-                        new Vector3(w, h, d), color, true);
+
+                    // Box mesh whose window texture tiles by the building's size; one material per wall colour.
+                    var b = new GameObject("Building");
+                    b.transform.SetParent(block, false);
+                    b.transform.localPosition = pos;
+                    b.AddComponent<MeshFilter>().sharedMesh = BuildingMesh.Create(w, h, d, rng);
+                    b.AddComponent<MeshRenderer>().sharedMaterial = MaterialFactory.GetTextured(color, windows);
+                    b.AddComponent<BoxCollider>().size = new Vector3(w, h, d);
                     b.isStatic = true;
 
                     // Simple roof cap for a bit of silhouette
-                    MaterialFactory.Primitive(PrimitiveType.Cube, "Roof", b.transform,
-                        new Vector3(0f, 0.5f + 0.4f / h, 0f), new Vector3(0.9f, 0.8f / h, 0.9f), color * 0.85f);
+                    var roofColor = new Color(color.r * 0.7f, color.g * 0.7f, color.b * 0.7f);
+                    MaterialFactory.Primitive(PrimitiveType.Cube, "Roof", block,
+                        new Vector3(pos.x, 0.15f + h + 0.4f, pos.z), new Vector3(w * 0.9f, 0.8f, d * 0.9f), roofColor);
                 }
             }
         }

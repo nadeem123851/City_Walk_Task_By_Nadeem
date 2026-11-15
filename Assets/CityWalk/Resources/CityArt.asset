@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 884ee28d3bfb58847b91af4633c2ef6f, type: 3}
+  m_Name: CityArt
+  m_EditorClassIdentifier: Assembly-CSharp::CityWalk.CityArt
+  windows: {fileID: 2800000, guid: f28ecc4361da9dc41aea5451695e8d35, type: 3}
+  signCoffee: {fileID: 2800000, guid: 50b3f22aed3473b4ca78f21cafaf9ff1, type: 3}
+  signBank: {fileID: 2800000, guid: 107e587e06e93384b94a581b41f799b1, type: 3}
+  signCafe: {fileID: 2800000, guid: d385593b9bfbb654b8db3233154c5db1, type: 3}
+  signOffice: {fileID: 2800000, guid: 08ecc73c97bccac41bbfecfcff42d4a6, type: 3}
+  signLapLine: {fileID: 2800000, guid: 77f1dad8fc5208841851059f7799d588, type: 3}
+  sky: {fileID: 2100000, guid: dbc2dc54144d0da4d9f5f62bd6b17fc2, type: 2}
