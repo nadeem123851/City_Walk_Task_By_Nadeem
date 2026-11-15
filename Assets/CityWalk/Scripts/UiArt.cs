@@ -9,9 +9,21 @@ namespace CityWalk
     [CreateAssetMenu(fileName = "UiArt", menuName = "City Walk/UI Art")]
     public class UiArt : ScriptableObject
     {
+        [Header("Panels (white, 9-sliced, tinted in code)")]
+        public Sprite panel;
+        public Sprite panelBorder;
+        public Sprite pill;
+        public Sprite circle;
+        public Sprite ring;
+        public Sprite knob;
+
+        [Header("Buttons and icons")]
         public Sprite buttonGold;
         public Sprite iconCoffee;
         public Sprite iconWalker;
+        public Sprite iconCity;
+        public Sprite iconStar;
+        public Sprite iconPause;
 
         static UiArt instance;
 
