@@ -64,6 +64,7 @@ namespace CityWalk
             route.officeMarker = new Vector3(p * 1.5f, 0f, -p * 0.5f);
             route.Begin(mover);
             hud.Bind(route);
+            LapCelebration.Create(hud.Root, route, playerGo.transform);
             KioskInteraction.Create(route, playerGo.transform, hud.Root);
             GuidanceChevrons.Create(route, playerGo.transform);
             PedestrianManager.Create(route, camGo.transform);

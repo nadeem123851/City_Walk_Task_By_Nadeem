@@ -11,7 +11,6 @@ namespace CityWalk
     /// </summary>
     public class HudController : MonoBehaviour
     {
-        const float LapMessageSeconds = 2.6f;
         static readonly Vector2 TopLeft = new Vector2(0f, 1f);
         static readonly Vector2 TopRight = new Vector2(1f, 1f);
 
@@ -26,8 +25,7 @@ namespace CityWalk
         GameObject pill;
         PausePanel pausePanel;
         RouteCompletePanel completePanel;
-        string lapMessageTitle, lapMessageBody;
-        float lapMessageUntil = -1f, lapPulseAt = -10f, coinPulseAt = -10f;
+        float lapPulseAt = -10f, coinPulseAt = -10f;
 
         public static HudController Create()
         {
@@ -107,13 +105,7 @@ namespace CityWalk
         public void Bind(RouteDirector director)
         {
             route = director;
-            route.LapCompleted += (lap, seconds) =>
-            {
-                lapMessageTitle = $"Lap {lap} complete";
-                lapMessageBody = $"Lap time {RouteDirector.FormatTime(seconds)}  ·  +{route.lapXp} XP";
-                lapMessageUntil = Time.time + LapMessageSeconds;
-                lapPulseAt = Time.time;
-            };
+            route.LapCompleted += (lap, seconds) => lapPulseAt = Time.time;   // the lap card itself is LapCelebration
             route.CoinCollected += total => coinPulseAt = Time.time;
             route.RouteCompleted += () =>
             {
@@ -146,7 +138,6 @@ namespace CityWalk
             if (route.Phase == RoutePhase.Complete) { title = "Arrived"; body = "You reached the office."; }
             else if (route.IsCoffeeMissed) { title = "Coffee missed"; body = "Go back to the kiosk and tap it. The lap will not count without it."; warn = true; }
             else if (route.IsWrongWay) { title = "Wrong way"; body = "Turn around and follow the green arrows."; warn = true; }
-            else if (Time.time < lapMessageUntil) { title = lapMessageTitle; body = lapMessageBody; }
             else if (route.Phase == RoutePhase.ToOffice) { title = "Get to the office"; body = "Laps done. Follow the arrows to the yellow marker."; }
             else if (!route.CoffeeThisLap) { title = "Head for the yellow marker"; body = "The coffee kiosk is ahead. Tap it as you pass."; }
             else if (route.CurrentLap < route.TotalLaps) { title = "Coffee grabbed"; body = $"Keep going round the park to finish lap {route.CurrentLap}."; }
