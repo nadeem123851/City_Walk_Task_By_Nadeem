@@ -39,6 +39,9 @@ namespace CityWalk
         [Tooltip("Smoothing for the blend parameters, in seconds.")]
         public float dampTime = 0.1f;
 
+        [Tooltip("Index into Options used until the player picks a character.")]
+        public int defaultOption;
+
         const string ChoiceKey = "CityWalk.Character";
 
         static PlayerCharacter instance;
@@ -46,7 +49,7 @@ namespace CityWalk
         /// <summary>The saved choice, as an index into <see cref="options"/>.</summary>
         public int SelectedIndex
         {
-            get => options.Count == 0 ? 0 : Mathf.Clamp(PlayerPrefs.GetInt(ChoiceKey, 0), 0, options.Count - 1);
+            get => options.Count == 0 ? 0 : Mathf.Clamp(PlayerPrefs.GetInt(ChoiceKey, defaultOption), 0, options.Count - 1);
             set
             {
                 PlayerPrefs.SetInt(ChoiceKey, Mathf.Clamp(value, 0, Mathf.Max(0, options.Count - 1)));

@@ -30,3 +30,4 @@ MonoBehaviour:
   runClipSpeed: 3.08
   maxPlaybackRate: 1.8
   dampTime: 0.1
+  defaultOption: 2

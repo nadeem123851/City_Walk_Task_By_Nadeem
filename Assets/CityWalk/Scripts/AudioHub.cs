@@ -42,12 +42,26 @@ namespace CityWalk
             ambience = NewSource("Ambience");
             ambience.loop = true;
             ambience.ignoreListenerPause = true;
+            ApplySettings();
+            GameSettings.Changed += ApplySettings;
             if (sounds.ambience.clip != null)
             {
                 ambience.clip = sounds.ambience.clip;
-                ambience.volume = sounds.ambience.volume;
                 ambience.Play();
             }
+        }
+
+        /// <summary>Music and sound-effect volumes from the settings panel; effects, footsteps and clicks share the SFX level.</summary>
+        void ApplySettings()
+        {
+            if (ambience == null) return;
+            ambience.volume = sounds.ambience.volume * GameSettings.MusicLevel;
+            sfx.volume = steps.volume = GameSettings.SfxLevel;
+        }
+
+        void OnDestroy()
+        {
+            GameSettings.Changed -= ApplySettings;
         }
 
         AudioSource NewSource(string name)

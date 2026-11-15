@@ -23,6 +23,7 @@ namespace CityWalk
         GameObject quitDialog, titleCard;
         HomeStage stage;
         CharacterSelectPanel characterPanel;
+        SettingsPanel settingsPanel;
 
         void Awake()
         {
@@ -91,8 +92,8 @@ namespace CityWalk
                 .onClick.AddListener(GameScenes.LoadGame);
             HudStyle.OutlineButton("CharacterButton", card.transform, "Character", Bottom, new Vector2(0f, 276f), ButtonSize)
                 .onClick.AddListener(OpenCharacterSelect);
-            // Settings arrive in the next step (PLAN Phase 9.5, H3).
-            ComingSoon(HudStyle.OutlineButton("SettingsButton", card.transform, "Settings", Bottom, new Vector2(0f, 176f), ButtonSize));
+            HudStyle.OutlineButton("SettingsButton", card.transform, "Settings", Bottom, new Vector2(0f, 176f), ButtonSize)
+                .onClick.AddListener(() => settingsPanel.Open());
             HudStyle.OutlineButton("QuitButton", card.transform, "Quit", Bottom, new Vector2(0f, 76f), ButtonSize)
                 .onClick.AddListener(ShowQuitDialog);
 
@@ -100,6 +101,8 @@ namespace CityWalk
             characterPanel = CharacterSelectPanel.Create(safe);
             characterPanel.Browsed += option => { if (stage != null) stage.ShowCharacter(option); };
             characterPanel.Closed += changed => titleCard.SetActive(true);
+
+            settingsPanel = SettingsPanel.Create(safe, false);
 
             quitDialog = HudStyle.ConfirmDialog("QuitDialog", safe, "Quit City Walk?", "Are you sure you really want to exit?",
                 "Yes", GameScenes.Quit, "No", HideQuitDialog);
@@ -109,18 +112,6 @@ namespace CityWalk
         {
             titleCard.SetActive(false);
             characterPanel.Open();
-        }
-
-        /// <summary>Shown but not yet usable: dimmed and not clickable.</summary>
-        static void ComingSoon(Button b)
-        {
-            b.transition = Selectable.Transition.None;   // before disabling, so the disabled tint never lands on the fill
-            b.interactable = false;
-            if (b.targetGraphic != null) b.targetGraphic.canvasRenderer.SetColor(Color.white);
-            // A faint outline and muted text; fading the whole button would let the gold edge show through the fill.
-            b.GetComponent<Image>().color = HudStyle.GoldEdge;
-            var label = b.GetComponentInChildren<TextMeshProUGUI>();
-            label.color = new Color(HudStyle.Text.r, HudStyle.Text.g, HudStyle.Text.b, 0.4f);
         }
 
         void ShowQuitDialog()
@@ -135,7 +126,8 @@ namespace CityWalk
         {
             // Escape on a keyboard, or the Android back button, opens or closes the quit dialog.
             if (!BackPressed()) return;
-            if (characterPanel.IsOpen) characterPanel.Close();
+            if (settingsPanel.IsOpen) settingsPanel.Close();
+            else if (characterPanel.IsOpen) characterPanel.Close();
             else if (quitDialog.activeSelf) HideQuitDialog();
             else ShowQuitDialog();
         }

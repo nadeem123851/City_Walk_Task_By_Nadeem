@@ -9,7 +9,7 @@ namespace CityWalk
     /// </summary>
     public static class UiFactory
     {
-        static Sprite roundedSprite, circleSprite;
+        static Sprite roundedSprite, circleSprite, gearSprite;
         static Font font;
 
         public static Font DefaultFont
@@ -37,6 +37,38 @@ namespace CityWalk
                 if (circleSprite == null) circleSprite = MakeRounded(128, 64);
                 return circleSprite;
             }
+        }
+
+        /// <summary>A white settings gear (eight teeth and a hole), for tinting. Drawn once in code: the art pack has none.</summary>
+        public static Sprite Gear
+        {
+            get
+            {
+                if (gearSprite == null) gearSprite = MakeGear(128);
+                return gearSprite;
+            }
+        }
+
+        static Sprite MakeGear(int size)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            var pixels = new Color32[size * size];
+            float c = size * 0.5f, body = size * 0.32f, tooth = size * 0.13f, hole = size * 0.13f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dx = x + 0.5f - c, dy = y + 0.5f - c;
+                    float r = Mathf.Sqrt(dx * dx + dy * dy);
+                    float wave = Mathf.Cos(8f * Mathf.Atan2(dy, dx));                     // eight teeth round the rim
+                    float edge = body + tooth * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.15f, 0.35f, wave));
+                    float a = Mathf.Clamp01(edge - r + 0.5f) * Mathf.Clamp01(r - hole + 0.5f);
+                    pixels[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+                }
+            }
+            tex.SetPixels32(pixels);
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
         }
 
         static Sprite MakeRounded(int size, int radius)

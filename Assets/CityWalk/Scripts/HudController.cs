@@ -38,6 +38,7 @@ namespace CityWalk
         float xpFloatAt = -10f, paceTextWidth;
         GameObject pill;
         PausePanel pausePanel;
+        SettingsPanel settingsPanel;
         RouteCompletePanel completePanel;
         float lapPulseAt = -10f, coinPulseAt = -10f;
 
@@ -131,10 +132,21 @@ namespace CityWalk
             pauseButton.onClick.AddListener(AudioHub.Click);
             pauseButton.onClick.AddListener(() => pausePanel.Show());
 
+            // Settings gear, right under the pause button, in the same round style.
+            var gearBg = UiFactory.Panel("SettingsButton", root, TopRight, TopRight, new Vector2(-40f, -144f), new Vector2(88f, 88f),
+                HudStyle.GoldEdge, circle);
+            gearBg.type = Image.Type.Simple;
+            HudStyle.Icon("Disc", gearBg.transform, circle, new Vector2(0.5f, 0.5f), Vector2.zero, 84f, HudStyle.Panel);
+            HudStyle.Icon("Icon", gearBg.transform, UiFactory.Gear, new Vector2(0.5f, 0.5f), Vector2.zero, 46f, HudStyle.Text);
+            var gearButton = gearBg.gameObject.AddComponent<Button>();
+            gearButton.onClick.AddListener(AudioHub.Click);
+            gearButton.onClick.AddListener(() => settingsPanel.Open());
+
             Joystick = VirtualJoystick.Create(root);
 
             pausePanel = PausePanel.Create(root);
             completePanel = RouteCompletePanel.Create(root);
+            settingsPanel = SettingsPanel.Create(root, true);
         }
 
         /// <summary>Starts showing a route.</summary>
