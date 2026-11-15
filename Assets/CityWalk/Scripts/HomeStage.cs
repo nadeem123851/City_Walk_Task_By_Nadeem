@@ -66,11 +66,11 @@ namespace CityWalk
             PlaceCamera(0f);
         }
 
-        /// <summary>(Re)builds the character model on the stand, playing its idle animation.</summary>
-        public void ShowCharacter()
+        /// <summary>(Re)builds the character on the stand, playing its idle animation: <paramref name="option"/>, or the saved choice.</summary>
+        public void ShowCharacter(CharacterOption option = null)
         {
             if (character != null) Destroy(character.gameObject);
-            var driver = CharacterAnimatorDriver.Create(stand, null);   // no mover: the blend stays on Idle, no footsteps
+            var driver = CharacterAnimatorDriver.Create(stand, null, option);   // no mover: the blend stays on Idle, no footsteps
             character = driver != null ? driver.transform : null;
         }
 

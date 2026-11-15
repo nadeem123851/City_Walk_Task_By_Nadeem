@@ -22,26 +22,31 @@ namespace CityWalk
         /// <summary>The animator on the character model.</summary>
         public Animator Animator => animator;
 
-        /// <summary>Adds the character model under <paramref name="player"/>. Returns null if the asset is missing.</summary>
-        public static CharacterAnimatorDriver Create(Transform player, PlayerMover mover)
+        /// <summary>
+        /// Adds the character model under <paramref name="player"/>: <paramref name="option"/>, or the saved choice
+        /// if null. With no mover the animator stays on Idle and plays no footsteps (the home screen preview).
+        /// Returns null if the asset is missing.
+        /// </summary>
+        public static CharacterAnimatorDriver Create(Transform player, PlayerMover mover, CharacterOption option = null)
         {
             var setup = PlayerCharacter.Instance;
-            if (setup == null || setup.model == null)
+            if (option == null && setup != null) option = setup.Selected;
+            if (setup == null || option == null || option.model == null)
             {
-                Debug.LogWarning("CityWalk: Resources/PlayerCharacter is missing or has no model; the player is invisible.");
+                Debug.LogWarning("CityWalk: Resources/PlayerCharacter is missing or has no characters; the player is invisible.");
                 return null;
             }
 
-            var model = Instantiate(setup.model, player, false);
+            var model = Instantiate(option.model, player, false);
             model.name = "Character";
             var driver = model.AddComponent<CharacterAnimatorDriver>();
             driver.mover = mover;
             driver.setup = setup;
-            driver.SetUp(model);
+            driver.SetUp(model, option.briefcase);
             return driver;
         }
 
-        void SetUp(GameObject model)
+        void SetUp(GameObject model, bool briefcase)
         {
             foreach (var r in model.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
@@ -69,7 +74,7 @@ namespace CityWalk
             // Footsteps: animation events on the walk and run clips, quieter when walking than when brisk.
             model.AddComponent<FootstepEvents>().Stepped += OnFootstep;
 
-            if (setup.briefcase)
+            if (briefcase)
             {
                 var hand = FindChild(model.transform, "Wrist.L");
                 if (hand != null) AddBriefcase(hand);

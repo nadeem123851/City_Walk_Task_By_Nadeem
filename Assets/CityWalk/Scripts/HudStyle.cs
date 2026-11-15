@@ -87,6 +87,7 @@ namespace CityWalk
                 Art.panelBorder != null ? Art.panelBorder : UiFactory.Rounded);
             Stretch(border.rectTransform);
             border.raycastTarget = false;
+            border.fillCenter = false;   // edges only: the border art's centre has a faint seam that shows on tall cards
             return img;
         }
 

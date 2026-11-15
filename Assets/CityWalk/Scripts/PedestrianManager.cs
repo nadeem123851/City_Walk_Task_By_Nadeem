@@ -72,6 +72,24 @@ namespace CityWalk
             return manager;
         }
 
+        /// <summary>
+        /// The walker's model. A walker that would look like the player's chosen character takes the next model in
+        /// the list instead (skipping the first, the suit, which is kept for the player), so the player never meets a twin.
+        /// </summary>
+        GameObject ModelFor(int character)
+        {
+            int n = set.characters.Count;
+            int index = Mathf.Abs(character) % n;
+            var player = PlayerCharacter.Instance != null ? PlayerCharacter.Instance.Selected : null;
+            if (player == null || set.characters[index] != player.model) return set.characters[index];
+            for (int k = 1; k < n; k++)
+            {
+                int other = (index + k) % n;
+                if (other != 0 && set.characters[other] != player.model) return set.characters[other];
+            }
+            return null;
+        }
+
         void Spawn()
         {
             var paths = new List<RoutePath>();
@@ -81,7 +99,7 @@ namespace CityWalk
             {
                 var entry = set.walkers[i];
                 if (entry.route < 0 || entry.route >= paths.Count || paths[entry.route] == null) continue;
-                var prefab = set.characters[Mathf.Abs(entry.character) % set.characters.Count];
+                var prefab = ModelFor(entry.character);
                 if (prefab == null) continue;
 
                 var go = Instantiate(prefab, transform);

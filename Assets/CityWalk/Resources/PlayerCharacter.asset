@@ -12,10 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 956237ac9b2d72e4ea7c8f84ec6db723, type: 3}
   m_Name: PlayerCharacter
   m_EditorClassIdentifier: Assembly-CSharp::CityWalk.PlayerCharacter
-  model: {fileID: 919132149155446097, guid: e9ee95b700d45ca49a79362e84d7e505, type: 3}
+  options:
+  - name: Business Man
+    tagline: Suit, tie and briefcase. Ready for the office.
+    model: {fileID: 919132149155446097, guid: e9ee95b700d45ca49a79362e84d7e505, type: 3}
+    briefcase: 1
+  - name: Worker
+    tagline: Hard hat, hi-vis and a case of tools.
+    model: {fileID: 919132149155446097, guid: fb5b0f0b39839964680566aac407c644, type: 3}
+    briefcase: 1
+  - name: Casual
+    tagline: Easy clothes for an easy walk to work.
+    model: {fileID: 919132149155446097, guid: f9d2cd11c11f1694789d6cddc218c6e9, type: 3}
+    briefcase: 1
   controller: {fileID: 9100000, guid: e44f8629a4b75d24b8cec974dfb65768, type: 2}
   walkClipSpeed: 1.34
   runClipSpeed: 3.08
   maxPlaybackRate: 1.8
   dampTime: 0.1
-  briefcase: 1

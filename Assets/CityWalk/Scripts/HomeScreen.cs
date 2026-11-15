@@ -20,8 +20,9 @@ namespace CityWalk
 
         public int citySeed = 7;
 
-        GameObject quitDialog;
+        GameObject quitDialog, titleCard;
         HomeStage stage;
+        CharacterSelectPanel characterPanel;
 
         void Awake()
         {
@@ -81,20 +82,33 @@ namespace CityWalk
             // Title card with Play, Character, Settings and Quit.
             var card = HudStyle.Card("TitleCard", safe, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(110f, 0f),
                 new Vector2(560f, 780f), HudStyle.PanelSolid, HudStyle.Gold, out _);
+            titleCard = card.gameObject;
             HudStyle.Icon("Icon", card.transform, art.iconCity, new Vector2(0.5f, 1f), new Vector2(0f, -100f), 104f, Color.white);
             HudStyle.Label("Title", card.transform, "City Walk", 72, HudStyle.Text, TextAlignmentOptions.Top, true).Inset(0f, 0f, 0f, 170f);
             HudStyle.Label("Subtitle", card.transform, "Morning routine", 30, HudStyle.TextMuted, TextAlignmentOptions.Top).Inset(0f, 0f, 0f, 258f);
 
             HudStyle.GoldButton("PlayButton", card.transform, "Play", Bottom, new Vector2(0f, 386f), new Vector2(380f, 96f))
                 .onClick.AddListener(GameScenes.LoadGame);
-            // Character select and settings arrive in the next steps (PLAN Phase 9.5, H2 and H3).
-            ComingSoon(HudStyle.OutlineButton("CharacterButton", card.transform, "Character", Bottom, new Vector2(0f, 276f), ButtonSize));
+            HudStyle.OutlineButton("CharacterButton", card.transform, "Character", Bottom, new Vector2(0f, 276f), ButtonSize)
+                .onClick.AddListener(OpenCharacterSelect);
+            // Settings arrive in the next step (PLAN Phase 9.5, H3).
             ComingSoon(HudStyle.OutlineButton("SettingsButton", card.transform, "Settings", Bottom, new Vector2(0f, 176f), ButtonSize));
             HudStyle.OutlineButton("QuitButton", card.transform, "Quit", Bottom, new Vector2(0f, 76f), ButtonSize)
                 .onClick.AddListener(ShowQuitDialog);
 
+            // Character select takes the card's place; the 3D character on the right previews each one.
+            characterPanel = CharacterSelectPanel.Create(safe);
+            characterPanel.Browsed += option => { if (stage != null) stage.ShowCharacter(option); };
+            characterPanel.Closed += changed => titleCard.SetActive(true);
+
             quitDialog = HudStyle.ConfirmDialog("QuitDialog", safe, "Quit City Walk?", "Are you sure you really want to exit?",
                 "Yes", GameScenes.Quit, "No", HideQuitDialog);
+        }
+
+        void OpenCharacterSelect()
+        {
+            titleCard.SetActive(false);
+            characterPanel.Open();
         }
 
         /// <summary>Shown but not yet usable: dimmed and not clickable.</summary>
@@ -121,7 +135,8 @@ namespace CityWalk
         {
             // Escape on a keyboard, or the Android back button, opens or closes the quit dialog.
             if (!BackPressed()) return;
-            if (quitDialog.activeSelf) HideQuitDialog();
+            if (characterPanel.IsOpen) characterPanel.Close();
+            else if (quitDialog.activeSelf) HideQuitDialog();
             else ShowQuitDialog();
         }
 
