@@ -1,0 +1,64 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/.utmp/
+
+# Build output
+/_Build/
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+*.apk
+*.aab
+*.unitypackage
+*.app
+crashlytics-build.properties
+
+# Asset Store tools
+/[Aa]ssets/AssetStoreTools*
+
+# IDE and solution files (Unity regenerates these)
+.vs/
+.vscode/
+.idea/
+.gradle/
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+mono_crash.*
+
+# Unity Version Control (Plastic SCM); this repo uses Git only
+/.plastic/
+/ignore.conf
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Large reference video kept out of the repo
+/Docs/*.mp4
