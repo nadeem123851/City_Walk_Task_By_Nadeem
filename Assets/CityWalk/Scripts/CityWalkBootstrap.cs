@@ -80,9 +80,10 @@ namespace CityWalk
         }
 
         // Haze colour from the web preview; also the camera background if the sky material is missing.
-        static readonly Color FogColor = new Color(0.725f, 0.827f, 0.925f);
+        public static readonly Color FogColor = new Color(0.725f, 0.827f, 0.925f);
 
-        static void SetupLighting()
+        /// <summary>Morning sun, sky, ambient light and fog. Shared with the 3D home screen.</summary>
+        public static void SetupLighting()
         {
             // Warm morning sun. Direction is the web preview's SUN_DIR with z mirrored for Unity.
             var sun = new GameObject("Sun").AddComponent<Light>();

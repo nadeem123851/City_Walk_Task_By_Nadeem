@@ -8,35 +8,53 @@ using UnityEngine.InputSystem;
 namespace CityWalk
 {
     /// <summary>
-    /// The home screen: a game screenshot behind a title card with Play and Quit.
-    /// Quit asks for confirmation first. Put this on one GameObject in the Home scene.
+    /// The home screen: the 3D city with the player's character (<see cref="HomeStage"/>) behind a title card with
+    /// Play, Character, Settings and Quit. Quit asks for confirmation first. If the 3D stage cannot be built, the
+    /// game screenshot is shown instead. Put this on one GameObject in the Home scene.
     /// </summary>
     public class HomeScreen : MonoBehaviour
     {
         static readonly Vector2 Centre = new Vector2(0.5f, 0.5f);
+        static readonly Vector2 Bottom = new Vector2(0.5f, 0f);
+        static readonly Vector2 ButtonSize = new Vector2(380f, 84f);
+
+        public int citySeed = 7;
 
         GameObject quitDialog;
+        HomeStage stage;
 
         void Awake()
         {
             Time.timeScale = 1f;
+            Application.targetFrameRate = 60;
             Screen.orientation = ScreenOrientation.AutoRotation;
 
-            // A camera so the screen is cleared even before the UI draws, with the audio listener for the ambience and clicks.
-            var cam = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener)).GetComponent<Camera>();
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = HudStyle.Hex(0x092E26);
-            cam.cullingMask = 0;
+            try
+            {
+                stage = HomeStage.Create(citySeed);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+                if (stage != null) Destroy(stage.gameObject);
+                stage = null;
+            }
 
             _ = AudioHub.Instance;   // starts the city ambience, which carries on into the game
 
             var canvas = HudStyle.CreateCanvas("HomeCanvas", 0, out var safe);
-            Build(canvas.transform, safe);
+            if (stage == null) BuildPictureBackground(canvas.transform);
+            BuildMenu(safe);
         }
 
-        void Build(Transform canvasRoot, RectTransform safe)
+        /// <summary>Fallback when the 3D stage is missing: the game screenshot, with a camera so the screen is cleared.</summary>
+        void BuildPictureBackground(Transform canvasRoot)
         {
             var art = HudStyle.Art;
+            var cam = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener)).GetComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = HudStyle.Hex(0x092E26);
+            cam.cullingMask = 0;
 
             // Background screenshot, filling the screen without stretching.
             var bg = UiFactory.MakeRect("Background", canvasRoot, Centre, Centre, Vector2.zero, new Vector2(1920f, 1080f));
@@ -54,21 +72,41 @@ namespace CityWalk
             wash.color = new Color(0f, 0f, 0f, 0.25f);
             wash.raycastTarget = false;
             wash.transform.SetSiblingIndex(1);
+        }
 
-            // Title card with Play and Quit.
+        void BuildMenu(RectTransform safe)
+        {
+            var art = HudStyle.Art;
+
+            // Title card with Play, Character, Settings and Quit.
             var card = HudStyle.Card("TitleCard", safe, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(110f, 0f),
-                new Vector2(560f, 560f), HudStyle.PanelSolid, HudStyle.Gold, out _);
+                new Vector2(560f, 780f), HudStyle.PanelSolid, HudStyle.Gold, out _);
             HudStyle.Icon("Icon", card.transform, art.iconCity, new Vector2(0.5f, 1f), new Vector2(0f, -100f), 104f, Color.white);
             HudStyle.Label("Title", card.transform, "City Walk", 72, HudStyle.Text, TextAlignmentOptions.Top, true).Inset(0f, 0f, 0f, 170f);
             HudStyle.Label("Subtitle", card.transform, "Morning routine", 30, HudStyle.TextMuted, TextAlignmentOptions.Top).Inset(0f, 0f, 0f, 258f);
 
-            HudStyle.GoldButton("PlayButton", card.transform, "Play", new Vector2(0.5f, 0f), new Vector2(0f, 190f), new Vector2(380f, 96f))
+            HudStyle.GoldButton("PlayButton", card.transform, "Play", Bottom, new Vector2(0f, 386f), new Vector2(380f, 96f))
                 .onClick.AddListener(GameScenes.LoadGame);
-            HudStyle.OutlineButton("QuitButton", card.transform, "Quit", new Vector2(0.5f, 0f), new Vector2(0f, 76f), new Vector2(380f, 90f))
+            // Character select and settings arrive in the next steps (PLAN Phase 9.5, H2 and H3).
+            ComingSoon(HudStyle.OutlineButton("CharacterButton", card.transform, "Character", Bottom, new Vector2(0f, 276f), ButtonSize));
+            ComingSoon(HudStyle.OutlineButton("SettingsButton", card.transform, "Settings", Bottom, new Vector2(0f, 176f), ButtonSize));
+            HudStyle.OutlineButton("QuitButton", card.transform, "Quit", Bottom, new Vector2(0f, 76f), ButtonSize)
                 .onClick.AddListener(ShowQuitDialog);
 
             quitDialog = HudStyle.ConfirmDialog("QuitDialog", safe, "Quit City Walk?", "Are you sure you really want to exit?",
                 "Yes", GameScenes.Quit, "No", HideQuitDialog);
+        }
+
+        /// <summary>Shown but not yet usable: dimmed and not clickable.</summary>
+        static void ComingSoon(Button b)
+        {
+            b.transition = Selectable.Transition.None;   // before disabling, so the disabled tint never lands on the fill
+            b.interactable = false;
+            if (b.targetGraphic != null) b.targetGraphic.canvasRenderer.SetColor(Color.white);
+            // A faint outline and muted text; fading the whole button would let the gold edge show through the fill.
+            b.GetComponent<Image>().color = HudStyle.GoldEdge;
+            var label = b.GetComponentInChildren<TextMeshProUGUI>();
+            label.color = new Color(HudStyle.Text.r, HudStyle.Text.g, HudStyle.Text.b, 0.4f);
         }
 
         void ShowQuitDialog()
