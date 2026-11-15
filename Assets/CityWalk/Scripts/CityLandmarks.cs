@@ -70,7 +70,7 @@ namespace CityWalk
             k.SetParent(root, false);
             k.localPosition = KioskPosition;
 
-            Box(k, "Body", new Vector3(4.2f, 2.6f, 3f), new Vector3(0f, 1.45f, 0f), Green, true);
+            Box(k, "Body", new Vector3(4.2f, 2.6f, 3f), new Vector3(0f, 1.45f, 0f), Green, true).layer = CityBuilder.BuildingsLayer;
             Box(k, "Awning", new Vector3(4.8f, 0.25f, 3.8f), new Vector3(0f, 2.95f, 0f), Gold);
             Box(k, "ServingWindow", new Vector3(3.2f, 1.0f, 0.1f), new Vector3(0f, 1.75f, 1.52f), KioskWindow);
             Sign(k, "Sign_Front", art.signCoffee, new Vector3(0f, 3.55f, 1.9f), new Vector2(3.6f, 0.9f), Vector3.forward);
@@ -83,7 +83,7 @@ namespace CityWalk
             o.SetParent(root, false);
             o.localPosition = OfficeSignPosition;
 
-            Box(o, "Pylon", new Vector3(0.35f, 4.4f, 2.6f), new Vector3(0f, 2.35f, 0f), Green, true);
+            Box(o, "Pylon", new Vector3(0.35f, 4.4f, 2.6f), new Vector3(0f, 2.35f, 0f), Green, true).layer = CityBuilder.BuildingsLayer;
             Box(o, "Cap", new Vector3(0.45f, 0.2f, 2.8f), new Vector3(0f, 4.65f, 0f), Gold);
             Sign(o, "Sign", art.signOffice, new Vector3(-0.19f, 3.6f, 0f), new Vector2(2.4f, 0.6f), Vector3.left);
         }

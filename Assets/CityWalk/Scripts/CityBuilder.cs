@@ -15,6 +15,19 @@ namespace CityWalk
 
         public float Pitch => blockSize + roadWidth;
 
+        /// <summary>Layer for solid city volumes the camera must not pass through.</summary>
+        public const string BuildingsLayerName = "Buildings";
+
+        /// <summary>The Buildings layer index, or Default (0) if the layer is missing from the project.</summary>
+        public static int BuildingsLayer
+        {
+            get
+            {
+                int layer = LayerMask.NameToLayer(BuildingsLayerName);
+                return layer >= 0 ? layer : 0;
+            }
+        }
+
         // Colours from the web preview (WebSource/main.js)
         static readonly Color Asphalt = Hex(0x3a3d43);
         static readonly Color Pavement = Hex(0xa9a59a);
@@ -99,6 +112,7 @@ namespace CityWalk
                     b.AddComponent<MeshFilter>().sharedMesh = BuildingMesh.Create(w, h, d, rng);
                     b.AddComponent<MeshRenderer>().sharedMaterial = MaterialFactory.GetTextured(color, windows);
                     b.AddComponent<BoxCollider>().size = new Vector3(w, h, d);
+                    b.layer = BuildingsLayer;
                     b.isStatic = true;
 
                     // Simple roof cap for a bit of silhouette
