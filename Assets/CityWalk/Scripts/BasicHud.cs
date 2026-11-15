@@ -16,7 +16,7 @@ namespace CityWalk
 
         public VirtualJoystick Joystick { get; private set; }
 
-        Text counterText, instructionTitle, instructionBody;
+        Text counterLabel, counterText, instructionTitle, instructionBody;
         GameObject pauseOverlay, completePanel;
 
         public static BasicHud Create()
@@ -62,7 +62,7 @@ namespace CityWalk
 
             // Stop counter
             var counter = UiFactory.Panel("Counter", root, topLeft, topLeft, new Vector2(440f, -36f), new Vector2(130f, 110f), Card);
-            UiFactory.Label("CounterLabel", counter.transform, "Stop", 22, SubInk, TextAnchor.UpperCenter);
+            counterLabel = UiFactory.Label("CounterLabel", counter.transform, "Stop", 22, SubInk, TextAnchor.UpperCenter);
             counterText = UiFactory.Label("CounterValue", counter.transform, "0/3", 38, Ink, TextAnchor.LowerCenter, FontStyle.Bold);
 
             // Instruction banner
@@ -117,6 +117,8 @@ namespace CityWalk
         }
 
         public void SetCounter(int done, int total) => counterText.text = $"{done}/{total}";
+
+        public void SetCounterLabel(string label) => counterLabel.text = label;
 
         public void SetPaused(bool paused)
         {

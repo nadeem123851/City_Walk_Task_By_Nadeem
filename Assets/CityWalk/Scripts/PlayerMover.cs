@@ -26,6 +26,9 @@ namespace CityWalk
         public bool MovementLocked { get; set; }
         public float CurrentSpeed { get; private set; }
 
+        /// <summary>Current walking velocity on the ground plane (m/s).</summary>
+        public Vector3 Velocity => horizontalVelocity;
+
         CharacterController controller;
         Vector3 horizontalVelocity;
         float verticalVelocity;

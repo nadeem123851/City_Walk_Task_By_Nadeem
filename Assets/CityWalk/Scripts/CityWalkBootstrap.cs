@@ -54,18 +54,16 @@ namespace CityWalk
             var hud = BasicHud.Create();
             mover.joystick = hud.Joystick;
 
-            // Spawn on the road just south of the park, facing east
-            mover.Teleport(new Vector3(-p * 0.5f + 4f, 0.05f, -p * 0.5f), 90f);
+            // Spawn on the lap line on the road south of the park, facing east
+            mover.Teleport(new Vector3(CityLandmarks.LapGateX, 0.05f, -p * 0.5f), 90f);
             follow.Snap();
 
-            // Route
-            var route = new GameObject("Route").AddComponent<CheckpointRoute>();
-            route.Init(playerGo.transform, hud, new[]
-            {
-                new CheckpointRoute.Stop { title = "Grab a coffee", hint = "The coffee kiosk is at the next crossing", position = new Vector3(p * 0.5f, 0f, -p * 0.5f) },
-                new CheckpointRoute.Stop { title = "Stop by the bank", hint = "Head north up the avenue", position = new Vector3(p * 0.5f, 0f, p * 1.5f) },
-                new CheckpointRoute.Stop { title = "Get to the office", hint = "Your office is to the west", position = new Vector3(-p * 1.5f, 0f, p * 1.5f) },
-            });
+            // Route: three laps round the park with a coffee each lap, then the office
+            var route = new GameObject("Route").AddComponent<RouteDirector>();
+            route.kioskMarker = new Vector3(p * 0.5f, 0f, -p * 0.5f);
+            route.officeMarker = new Vector3(p * 1.5f, 0f, -p * 0.5f);
+            route.Begin(mover);
+            hud.gameObject.AddComponent<RouteHudView>().Init(route, hud);
         }
 
         // Haze colour from the web preview; also the camera background if the sky material is missing.
