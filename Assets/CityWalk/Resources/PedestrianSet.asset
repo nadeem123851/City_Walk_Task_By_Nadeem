@@ -70,12 +70,12 @@ MonoBehaviour:
     - {x: 23.3, y: 44.7}
   walkers:
   - route: 0
-    character: 0
+    character: 6
     startOffset: 0
     speed: 1.45
     reverse: 0
     scale: 0.95
-    jacket: {r: 0, g: 0, b: 0, a: 0}
+    jacket: {r: 0.22745098, g: 0.22745098, b: 0.26666668, a: 1}
     rushHourOnly: 0
   - route: 0
     character: 1
@@ -126,12 +126,12 @@ MonoBehaviour:
     jacket: {r: 0.18431373, g: 0.41960785, b: 0.2901961, a: 1}
     rushHourOnly: 1
   - route: 2
-    character: 0
+    character: 4
     startOffset: 0.2
     speed: 1.4
     reverse: 0
     scale: 1.04
-    jacket: {r: 0, g: 0, b: 0, a: 0}
+    jacket: {r: 0.41960785, g: 0.2901961, b: 0.18039216, a: 1}
     rushHourOnly: 0
   - route: 2
     character: 6

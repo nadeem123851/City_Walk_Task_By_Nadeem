@@ -34,7 +34,7 @@ namespace CityWalk
             cc.center = new Vector3(0f, 0.9f, 0f);
             cc.stepOffset = 0.35f;
             var mover = playerGo.AddComponent<PlayerMover>();
-            mover.avatar = SuitedManAvatar.Create(playerGo.transform);
+            CharacterAnimatorDriver.Create(playerGo.transform, mover);
 
             // Camera
             var camGo = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));

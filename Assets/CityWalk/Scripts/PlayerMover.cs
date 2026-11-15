@@ -8,6 +8,7 @@ namespace CityWalk
     /// <summary>
     /// Camera-relative movement using a CharacterController.
     /// Input comes from the on-screen joystick, or WASD / arrow keys in the editor.
+    /// The character model and its animation are driven separately by CharacterAnimatorDriver.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public class PlayerMover : MonoBehaviour
@@ -21,7 +22,6 @@ namespace CityWalk
 
         public VirtualJoystick joystick;
         public Transform cameraTransform;
-        public SuitedManAvatar avatar;
 
         public bool MovementLocked { get; set; }
         public float CurrentSpeed { get; private set; }
@@ -70,7 +70,6 @@ namespace CityWalk
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnSpeed * Time.deltaTime);
             }
 
-            if (avatar != null) avatar.Speed = CurrentSpeed;
         }
 
         Vector2 ReadInput()

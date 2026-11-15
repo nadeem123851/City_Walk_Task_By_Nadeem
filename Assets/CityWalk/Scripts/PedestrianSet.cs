@@ -113,16 +113,17 @@ namespace CityWalk
         public static List<PedestrianEntry> DefaultWalkers()
         {
             // Jacket colours from the web preview; clear keeps the outfit as modelled.
+            // Character 0 (Suit) is left out: that is the player, who should stand out.
             // The pavement strips are thin loops whose two lanes already carry people both ways, so nobody walks
             // them reversed (a reversed walker would have to step into the other lane to pass).
             Color c = Color.clear;
             Color[] j = { Hex(0x7a2f3a), Hex(0x2f4f7a), Hex(0x6b4a2e), Hex(0x2f6b4a), Hex(0x8a8a8a), Hex(0x3a3a44), Hex(0x9a6a3a), Hex(0x4a3a6b) };
             var w = new List<PedestrianEntry>
             {
-                W(0, 0, 0.00f, 1.45f, false, c),    W(0, 1, 0.27f, 1.30f, true, j[1]),  W(0, 2, 0.55f, 1.55f, false, c),
+                W(0, 6, 0.00f, 1.45f, false, j[5]),    W(0, 1, 0.27f, 1.30f, true, j[1]),  W(0, 2, 0.55f, 1.55f, false, c),
                 W(0, 3, 0.80f, 1.25f, true, c, true),
                 W(1, 4, 0.10f, 1.50f, false, c),    W(1, 1, 0.60f, 1.35f, false, j[0]),  W(1, 7, 0.35f, 1.40f, false, j[3], true),
-                W(2, 0, 0.20f, 1.40f, false, c),     W(2, 6, 0.70f, 1.30f, false, c, true),
+                W(2, 4, 0.20f, 1.40f, false, j[2]),     W(2, 6, 0.70f, 1.30f, false, c, true),
                 W(3, 2, 0.15f, 1.45f, false, j[6]), W(3, 5, 0.65f, 1.35f, false, c, true),
                 W(4, 7, 0.40f, 1.40f, false, c),    W(4, 1, 0.90f, 1.60f, true, j[7], true),
                 W(5, 3, 0.50f, 1.30f, false, c),    W(6, 5, 0.25f, 1.50f, true, c),
