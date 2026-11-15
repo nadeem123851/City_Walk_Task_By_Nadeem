@@ -44,7 +44,7 @@ namespace CityWalk
         /// <summary>Laps 1 and 2: the player is asked to walk briskly.</summary>
         public bool IsRushHour => Phase == RoutePhase.Laps && CurrentLap <= rushHourLaps;
         public int Xp { get; private set; }
-        /// <summary>Coins picked up on the route (coin pickups arrive with the extras).</summary>
+        /// <summary>Coins picked up on the route.</summary>
         public int Coins { get; private set; }
         public float ElapsedTime { get; private set; }
 
@@ -64,6 +64,8 @@ namespace CityWalk
         public event Action LapRejected;
         public event Action CoffeeGrabbed;
         public event Action CoffeeMissed;
+        /// <summary>A coin was picked up; the argument is the new total.</summary>
+        public event Action<int> CoinCollected;
         public event Action<bool> WrongWayChanged;
         public event Action<RoutePhase> PhaseChanged;
         /// <summary>Amount and reason, for example (20, "Lap bonus").</summary>
@@ -102,6 +104,14 @@ namespace CityWalk
             AddXp(coffeeXp, "Coffee");
             CoffeeGrabbed?.Invoke();
             UpdateMarkers();
+        }
+
+        /// <summary>Adds a picked-up coin. Called by the coin field. Ignored once the route is over.</summary>
+        public void CollectCoin()
+        {
+            if (Phase == RoutePhase.Complete || Phase == RoutePhase.Failed) return;
+            Coins++;
+            CoinCollected?.Invoke(Coins);
         }
 
         /// <summary>The player walked on past the kiosk without the coffee. Called by the kiosk interaction.</summary>

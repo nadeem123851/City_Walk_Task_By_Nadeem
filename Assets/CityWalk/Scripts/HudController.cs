@@ -6,7 +6,7 @@ namespace CityWalk
 {
     /// <summary>
     /// The in-game HUD in the target style: title card, lap counter, instruction banner with a gold
-    /// edge, pace pill, XP, pause button and joystick. Reads RouteDirector state and listens to its
+    /// edge, pace pill, XP, coins, pause button and joystick. Reads RouteDirector state and listens to its
     /// events; it never changes game state itself.
     /// </summary>
     public class HudController : MonoBehaviour
@@ -20,14 +20,14 @@ namespace CityWalk
         public RectTransform Root { get; private set; }
 
         RouteDirector route;
-        TextMeshProUGUI lapValue, bannerTitle, bannerBody, pillText, xpText;
+        TextMeshProUGUI lapValue, bannerTitle, bannerBody, pillText, xpText, coinText;
         Image bannerFill, bannerBorder, bannerEdge, lapBorder;
-        RectTransform lapCard;
+        RectTransform lapCard, coinCard;
         GameObject pill;
         PausePanel pausePanel;
         RouteCompletePanel completePanel;
         string lapMessageTitle, lapMessageBody;
-        float lapMessageUntil = -1f, lapPulseAt = -10f;
+        float lapMessageUntil = -1f, lapPulseAt = -10f, coinPulseAt = -10f;
 
         public static HudController Create()
         {
@@ -78,6 +78,14 @@ namespace CityWalk
             HudStyle.Icon("Star", xp.transform, art.iconStar, new Vector2(0f, 0.5f), new Vector2(56f, 0f), 30f, HudStyle.Gold);
             xpText = HudStyle.Label("Value", xp.transform, "0 XP", 28, HudStyle.Text, TextAlignmentOptions.Left).Inset(82f, 0f, 12f, 0f);
 
+            // Coins, under the XP card: a gold coin drawn from two discs
+            var coins = HudStyle.Card("CoinCard", root, TopRight, TopRight, new Vector2(-152f, -132f), new Vector2(218f, 64f));
+            coinCard = coins.rectTransform;
+            var disc = art.circle != null ? art.circle : UiFactory.Circle;
+            HudStyle.Icon("Coin", coins.transform, disc, new Vector2(0f, 0.5f), new Vector2(56f, 0f), 34f, HudStyle.Gold);
+            HudStyle.Icon("CoinInner", coins.transform, disc, new Vector2(0f, 0.5f), new Vector2(56f, 0f), 22f, HudStyle.Hex(0xC9962E));
+            coinText = HudStyle.Label("Value", coins.transform, "0", 28, HudStyle.Text, TextAlignmentOptions.Left).Inset(82f, 0f, 12f, 0f);
+
             // Pause button
             var circle = art.circle != null ? art.circle : UiFactory.Circle;
             var pauseBg = UiFactory.Panel("PauseButton", root, TopRight, TopRight, new Vector2(-40f, -40f), new Vector2(88f, 88f),
@@ -106,6 +114,7 @@ namespace CityWalk
                 lapMessageUntil = Time.time + LapMessageSeconds;
                 lapPulseAt = Time.time;
             };
+            route.CoinCollected += total => coinPulseAt = Time.time;
             route.RouteCompleted += () =>
             {
                 Joystick.gameObject.SetActive(false);
@@ -123,6 +132,9 @@ namespace CityWalk
         {
             lapValue.text = $"{route.CurrentLap}/{route.TotalLaps}";
             xpText.text = $"{route.Xp} XP";
+            coinText.text = route.Coins.ToString();
+            float coinPulse = Mathf.Clamp01(1f - (Time.time - coinPulseAt) / 0.35f);
+            coinCard.localScale = Vector3.one * (1f + 0.14f * Mathf.Sin(coinPulse * Mathf.PI));
 
             // Short pulse on the lap counter when a lap is done.
             float pulse = Mathf.Clamp01(1f - (Time.time - lapPulseAt) / 0.8f);

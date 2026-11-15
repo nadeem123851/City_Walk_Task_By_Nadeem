@@ -67,6 +67,7 @@ namespace CityWalk
             KioskInteraction.Create(route, playerGo.transform, hud.Root);
             GuidanceChevrons.Create(route, playerGo.transform);
             PedestrianManager.Create(route, camGo.transform);
+            CoinField.Create(route, playerGo.transform);
             AudioHub.Instance?.Bind(route);
         }
 

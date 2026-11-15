@@ -19,3 +19,4 @@ MonoBehaviour:
   signOffice: {fileID: 2800000, guid: 08ecc73c97bccac41bbfecfcff42d4a6, type: 3}
   signLapLine: {fileID: 2800000, guid: 77f1dad8fc5208841851059f7799d588, type: 3}
   sky: {fileID: 2100000, guid: dbc2dc54144d0da4d9f5f62bd6b17fc2, type: 2}
+  sparkle: {fileID: 2100000, guid: ca9346154607641479f24d4297c6ed37, type: 2}

@@ -16,6 +16,8 @@ namespace CityWalk
         public Texture2D signOffice;
         public Texture2D signLapLine;
         public Material sky;
+        [Tooltip("Additive particle material with the sparkle texture, for coin, lap and coffee sparkles.")]
+        public Material sparkle;
 
         static CityArt instance;
 

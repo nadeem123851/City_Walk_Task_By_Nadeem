@@ -29,6 +29,7 @@ namespace CityWalk
         public Sound missed = new Sound { volume = 0.75f };
         public Sound wrongWay = new Sound { volume = 0.7f };
         public Sound finish = new Sound { volume = 0.9f };
+        public Sound coin = new Sound { volume = 0.6f, pitchJitter = 0.05f };
 
         [Header("Interface")]
         public Sound click = new Sound { volume = 0.6f };
