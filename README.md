@@ -40,7 +40,6 @@ A Unity prototype of a commuter's walk round a city park: walk laps, grab a coff
 | `Assets/CityWalk/Art`, `Audio`, `UI` | Textures, sounds and HUD sprites |
 | `Assets/Character_Models` | Player and pedestrian characters |
 | `Assets/Settings` | URP pipeline and renderer assets |
-| `Docs/` | Reference material, not imported by Unity |
 
 ## Assets and licences
 
