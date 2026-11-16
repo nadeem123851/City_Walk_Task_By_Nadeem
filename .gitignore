@@ -72,3 +72,10 @@ desktop.ini
 /Assets/Character_Models/Swat.meta
 /Assets/Character_Models/Astronaut/
 /Assets/Character_Models/Astronaut.meta
+
+# Private notes (keep out of the repo)
+PLAN.md
+IMPROVE_TEXTURES_PLAN.md
+CHANGES.md
+ASSETS.md
+Docs/AssetPack_README.md
